@@ -1,0 +1,11 @@
+{
+    "Coluna 1": [
+        "Alice",
+        "Bob",
+        "Carol"
+    ],
+    "Coluna 2": [
+        "Dave",
+        "Alice"
+    ]
+}
