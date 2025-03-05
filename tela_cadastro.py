@@ -54,30 +54,12 @@ def view():
 
         #Segunda linha, teste de inserção
                         ft.Row(
-                        [ ft.Container(content=ft.Text('LINHA TESTE:', size=20), width= 150),
-                        ft.TextField(label='LABEL TEXTE', )]#linha
+                        [ ft.TextField(label='pesquisar',label_style =  ft.TextStyle(font_family="Kanit",), icon='search',
+                                 on_change=lambda e: print("EU QUERO GOZARRRR"),bgcolor= ft.Colors.PURPLE_500)]#linha
                         ,
-                        ),  ft.Card(
-            content=ft.Container(
-                content=ft.Column(
-                    [
-                        ft.ListTile(
-                            leading=ft.Icon(ft.Icons.ALBUM),
-                            title=ft.Text("CHATUBA DE MESQUITA",font_family="Kanit",),
-                            subtitle=ft.Text(
-                                "Atenção chegou chatuba, hein?\nVamo esculachar, hein?\nMáquina de sexoEu transo igual a um animal\nA Chatuba de Mesquita \nDo bonde sexo "
-                            ),
                         ),
-                        ft.Row(
-                            [ft.TextButton("APAGAR"), ft.TextButton("EDITAR")],
-                            alignment=ft.MainAxisAlignment.CENTER,
-                        ),
-                    ]
-                ),
-                width=400,
-                padding=10,
-            )
-        )
+                        ft.FloatingActionButton(icon=ft.Icons.ADD, on_click=lambda e: con.page.open(con.painel_de_criacao), bgcolor=ft.Colors.PURPLE),
+
 
 
                     ]
