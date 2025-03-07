@@ -4,27 +4,19 @@ import controle_bd as con
 import bd
 
 while True:
-    opcao = input("0 - Sair\n1 - Criar kanban\n2 - Deletar kanban\n3 - Visualizar kanban\n4 - Listar kanbans\n5 - Editar kanban\n\nEscolha: ")
+    opcao = input("0 - Sair\n1 - Criar kanban\n2 - Deletar kanban\n3 - Listar kanbans\n4 - Editar kanban\n\nEscolha: ")
 
     if opcao == '0':
         print('Saindo...')
         break
-
     elif opcao == '1':
         con.criar()
-
     elif opcao == '2':
         con.deletar()
-
     elif opcao == '3':
-        con.visualizar()
-
-    elif opcao == '4':
         con.listar()
-
-    elif opcao == '5':
+    elif opcao == '4':
         con.editar()
-
     else:
         print('Opção inválida')
 

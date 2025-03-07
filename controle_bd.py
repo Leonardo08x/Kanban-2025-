@@ -56,20 +56,6 @@ def deletar():
             print("Kanban não encontrado.", end='\n\n')
 
 
-def visualizar():
-    '''
-    Função que visualiza um kanban
-    '''
-    if verificar_kanban(): # Verifica se existe algum kanban no bd
-        nome_kanban = input("Digite o nome do kanban: ").capitalize()
-        # Carrega o kanban do bd
-        kanban = bd.ler_kanban(nome_kanban)
-        if kanban is None:
-            print("Kanban não encontrado.")
-        else:
-            print(kanban, end='\n\n')
-
-
 def listar():
     '''
     Função que lista todos os kanbans disponíveis
@@ -98,17 +84,24 @@ def editar():
         else:
             while True:
                 # Menu de edição
-                opcao = input("0 - Sair\n1 - Adicionar coluna\n2 - Remover coluna\n3 - Adicionar tarefa\n4 - Remover tarefa\n\nEscolha: ")
+                opcao = input("0 - Sair\n1 - Adicionar coluna\n2 - Remover coluna\n3 - Adicionar tarefa\n4 - Remover tarefa\n5 - Visualizar kanban\n\nEscolha: ")
                 if opcao == '0':
                     break
+                # Todas as opções de edição alteram diretamente os arquivos no bd, então precisa carregar o kanban novamente, caso alterado
                 elif opcao == '1':
-                    editar_adicionar_coluna(nome_kanban, kanban)
+                    if editar_adicionar_coluna(nome_kanban, kanban):
+                        kanban = bd.ler_kanban(nome_kanban)
                 elif opcao == '2':
-                    editar_deletar_coluna(nome_kanban, kanban)
+                    if editar_deletar_coluna(nome_kanban, kanban):
+                        kanban = bd.ler_kanban(nome_kanban)
                 elif opcao == '3':
-                    editar_adicionar_tarefa(nome_kanban, kanban)
+                    if editar_adicionar_tarefa(nome_kanban, kanban):
+                        kanban = bd.ler_kanban(nome_kanban)
                 elif opcao == '4':
-                    editar_deletar_tarefa(nome_kanban, kanban)
+                    if editar_deletar_tarefa(nome_kanban, kanban):
+                        kanban = bd.ler_kanban(nome_kanban)
+                elif opcao == '5':
+                    print(kanban, end='\n\n')
                 else:
                     print("Opção inválida.", end='\n\n')
 
@@ -121,12 +114,15 @@ def editar_adicionar_coluna(nome_kanban:str, kanban:dict):
     # Verifica se a coluna já existe
     if nome_coluna in kanban.keys():
         print("Coluna ja existe.", end='\n\n')
+        return False
     # Caso não exista, adiciona a nova coluna ao kanban
     else:
         if bd.adicionar_coluna(nome_kanban, nome_coluna):
             print("Coluna adicionada com sucesso.", end='\n\n')
+            return True
         else:
             print("Erro ao adicionar coluna.", end='\n\n')
+            return False
 
 
 def editar_deletar_coluna(nome_kanban:str, kanban:dict):
@@ -136,12 +132,16 @@ def editar_deletar_coluna(nome_kanban:str, kanban:dict):
     # Verifica se o kanban tem mais de duas colunas, caso contrário, não é possível deletar uma coluna
     if len(kanban.keys()) == 2:
         print("Kanban deve ter ao menos duas colunas.", end='\n\n')
+        return False
     # Caso tenha mais de duas colunas, deleta a coluna escolhida
-    nome_coluna = input("Digite o nome da coluna: ").capitalize()
-    if bd.deletar_coluna(nome_kanban, nome_coluna):
-        print("Coluna removida com sucesso.", end='\n\n')
     else:
-        print("Erro ao remover coluna.", end='\n\n')
+        nome_coluna = input("Digite o nome da coluna: ").capitalize()
+        if bd.deletar_coluna(nome_kanban, nome_coluna):
+            print("Coluna removida com sucesso.", end='\n\n')    
+            return True
+        else:
+            print("Erro ao remover coluna.", end='\n\n')
+            return False
 
     
 def editar_adicionar_tarefa(nome_kanban:str, kanban:dict):
@@ -152,12 +152,14 @@ def editar_adicionar_tarefa(nome_kanban:str, kanban:dict):
     # Verifica se a coluna existe no kanban
     if nome_coluna not in kanban.keys():
         print("Coluna não encontrada.", end='\n\n')
+        return False
     # Caso exista, adiciona a nova tarefa à coluna
     else:
         tarefa = input("Digite o nome da tarefa: ").capitalize()
         # Verifica se a tarefa ja existe
         if tarefa in kanban[nome_coluna].keys():
             print("Tarefa ja existe.", end='\n\n')
+            return False
         # Caso não exista, adiciona a nova tarefa à coluna selecionada
         else:
             # Adiciona a pessoa responsável pela tarefa
@@ -165,8 +167,10 @@ def editar_adicionar_tarefa(nome_kanban:str, kanban:dict):
             # Adiciona a tarefa e seu responsável ao kanban
             if bd.adicionar_tarefa(nome_kanban, nome_coluna, tarefa, pessoa_responsavel):
                 print("Tarefa adicionada com sucesso.", end='\n\n')
+                return True
             else:
                 print("Erro ao adicionar tarefa.", end='\n\n')
+                return False
 
 
 def editar_deletar_tarefa(nome_kanban:str, kanban:dict):
@@ -177,18 +181,23 @@ def editar_deletar_tarefa(nome_kanban:str, kanban:dict):
     # Verifica se a coluna existe no kanban
     if nome_coluna not in kanban.keys():
         print("Coluna não encontrada.", end='\n\n')
+        return False
     # Verifica se a coluna está vazia
     elif not kanban[nome_coluna]:
         print("Coluna vazia.", end='\n\n')
+        return False
     # Caso exista e não esteja vazia, poderá remover a tarefa selecionada
     else:
         tarefa = input("Digite o nome da tarefa: ").capitalize()
         # Verifica se a tarefa existe na coluna
         if tarefa not in kanban[nome_coluna].keys():
             print("Tarefa não encontrada.", end='\n\n')
+            return False
         # Caso exista, remove a tarefa da coluna
         else:
             if bd.deletar_tarefa(nome_kanban, nome_coluna, tarefa):
                 print("Tarefa removida com sucesso.", end='\n\n')
+                return True
             else:
                 print("Erro ao remover tarefa.", end='\n\n')
+                return False

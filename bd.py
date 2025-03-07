@@ -103,11 +103,11 @@ def deletar_coluna(nome_kanban:str, nome_coluna:str) -> bool:
     if kanban is None:
         return False
     
-    if kanban.pop(nome_coluna, None):
+    if kanban.pop(nome_coluna, None) is None:
+        return False
+    else:
         atualizar_kanban(nome_kanban, kanban)
         return True
-    else:
-        return False
 
 
 def adicionar_tarefa(nome_kanban:str, nome_coluna:str, nome_tarefa:str, pessoa_responsavel:str) -> bool:
