@@ -3,8 +3,8 @@ import controle as con
 import tela_cadastro as tela
 def view():     
     return ft.View(
-                "tela2",
-                [           ft.AppBar(
+                "tela1",
+                controls =[           ft.AppBar(
                 leading=ft.Icon(ft.Icons.TASK_ALT),
                 leading_width=100,
                 title=ft.Text(
@@ -32,7 +32,7 @@ def view():
             ),
                     ft.Row(
                         [
-                            con.barra_navegacao(),
+                            con.rail,
                             ft.VerticalDivider(width=1),
                             ft.Column([ft.Stack([
                         ft.Container(

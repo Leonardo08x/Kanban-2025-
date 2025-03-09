@@ -1,14 +1,15 @@
 import flet as ft
-import controle as con
+from typing_extensions import ReadOnly
 
+import controle as con
 
 
 def view():
 
     return ft.View(
 
-
-                "tela1",[
+                "tela0",controls =[
+            #appbar titulo
             ft.AppBar(
                 leading=ft.Icon(ft.Icons.TASK_ALT),
                 leading_width=100,
@@ -35,9 +36,10 @@ def view():
                 toolbar_height=55,
                 bgcolor=ft.Colors.PURPLE_300,
             ),
+            # primeira linha
             ft.Row(
                 [
-                    con.barra_navegacao(),
+                    con.rail,
                     ft.VerticalDivider(width=1),
                     ft.Column([ft.Stack([
                         ft.Container(
@@ -50,16 +52,25 @@ def view():
 ,                        ft.Column(
                     [
 
-                      #primeira linha
 
-        #Segunda linha, teste de inserção
-                        ft.Row(
+
+        #Segunda linha, pesquisa
+                       ft.Column( [ft.Row(
                         [ ft.TextField(label='pesquisar',label_style =  ft.TextStyle(font_family="Kanit",), icon='search',
                                  on_change=lambda e: print("EU QUERO GOZARRRR"),bgcolor= ft.Colors.PURPLE_500)]#linha
                         ,
                         ),
+                       ft.Row(scroll=ft.ScrollMode.ALWAYS,controls =[ft.Container(   width=220,
+                            height=150,
+                                               bgcolor=ft.Colors.PURPLE,
+                                padding = 20,   border=ft.border.all(2, ft.Colors.DEEP_PURPLE_500),
+                         border_radius=10,content=ft.Column([ft.TextField("Kanban Template", bgcolor=ft.Colors.DEEP_PURPLE_500,
+                                                                         read_only = True,  label = "Nome do Kanban",icon=ft.Icons.TASK_ALT,label_style = ft.TextStyle(color = ft.Colors.WHITE,size = 15, italic=True  ),  text_style=        ft.TextStyle(color=ft.Colors.WHITE,
+                                                                                         size=12,
+                                                                             ) ),   ft.TextButton("GO",icon=ft.Icons.MOVING, style = ft.ButtonStyle(bgcolor = ft.Colors.DEEP_PURPLE_500),on_click=lambda e: con.page.go('2') )])) ])]),
+            #botão adicionar, incluir em uma linha
                         ft.FloatingActionButton(icon=ft.Icons.ADD, on_click=lambda e: con.page.open(con.painel_de_criacao), bgcolor=ft.Colors.PURPLE),
-
+            #incluir aqui a função dos kanbans
 
 
                     ]
