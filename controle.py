@@ -1,7 +1,7 @@
 import tela_cadastro, tela_tabela
 import flet as ft
 #TROCAR PAGINA PELO ON CLICK NA INICIAL
-
+#
 componentes = {
         'cor_teste': ft.Ref[ft.Checkbox](),
         #add todos os compontens da tela aqui
