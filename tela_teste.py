@@ -1,7 +1,10 @@
 import flet as ft
 import controle as con
+import funcoes as fun
+import criacao as cri
 
-def view():
+
+def view(limite, cores, nome_do_Kanbam):
     return ft.View(
         "tela2",
         controls =[
@@ -9,19 +12,19 @@ def view():
                 leading=ft.Icon(ft.Icons.TASK_ALT),
                 leading_width=100,
                 actions=[
-                    #botão salvar, adicionar função
+                    #botão salvar
                     ft.IconButton(
                         ft.Icons.SAVE,
                         icon_color=ft.Colors.WHITE,
                         icon_size=30,
-                        on_click=lambda e: print("salvamento efetuado"),
+                        on_click=lambda e: print("teste salvar")    #adicionar funcao
                     ),
                     #botão apagar adicionar função
                     ft.IconButton(
                         icon=ft.Icons.DELETE_FOREVER_ROUNDED,
                         icon_color=ft.Colors.WHITE,
                         icon_size=30,
-                        on_click=lambda e: print("apagamento efetuado"),
+                        on_click=fun.deletar_kanbam
                     )
                 ],
                 title=ft.Text(
@@ -38,8 +41,8 @@ def view():
                                         (2000, 150),
                                         (150, 2000),
                                         [
-                                            ft.Colors.BLACK,
-                                            ft.Colors.PURPLE
+                                           ft.Colors.BLACK,
+                                           ft.Colors.PURPLE
                                         ]
                                     )
                                 )
@@ -50,13 +53,28 @@ def view():
                 center_title=False,
                 toolbar_height=55,
                 bgcolor=ft.Colors.PURPLE_300,
-            ), # Appbar
+            ), # AppBar
             ft.Row(
                 [
-                    con.rail,
+                    ft.NavigationRail(
+                        selected_index=None,
+                        label_type=ft.NavigationRailLabelType.ALL,
+                        bgcolor=ft.Colors.PURPLE_500,
+                        min_width=100,
+                        min_extended_width=400,
+                        leading=ft.FloatingActionButton(
+                            icon=ft.Icons.ADD_TASK,
+                            text="Add",
+                            on_click = lambda e: con.page.open(cri.painel_de_criacao)
+                        ),
+                        group_alignment=-0.9,
+                        on_change= lambda e:  con.page.go(str(e.control.selected_index)),
+                        destinations = con.destinos
+                    ),
                     ft.VerticalDivider(width=1),
                     ft.Column(
-                        [
+                        scroll=ft.ScrollMode.ALWAYS,
+                        controls = [
                             ft.Stack(
                                 [
                                     ft.Container(
@@ -66,169 +84,22 @@ def view():
                                         width=1980,
                                         height=1080
                                     ),
-                                    ft.Text("TESTE"),
+                                    ft.Text(nome_do_Kanbam),
                                     ft.Column(
-                                        [
+                                        scroll=ft.ScrollMode.ADAPTIVE,
+                                        controls=[
                                             ft.Row(
-                                            #função de listas vai aqui
-                                                [
-                                                    # main container
-                                                    ft.Container(
-                                                        width=250,
-                                                        margin=60,
-                                                        height=250,
-                                                        border=ft.border.all(2, ft.Colors.PURPLE),
-                                                        border_radius = 10,
-                                                        padding = 10,
-                                                        bgcolor=ft.Colors.ORANGE_400,
-                                                        content=ft.DragTarget(
-                                                            on_accept=con.drag_accept,
-                                                            content=ft.Draggable(
-                                                                ft.Column(
-                                                                    controls = [
-                                                                        ft.TextField(
-                                                                            "",
-                                                                            bgcolor = ft.Colors.WHITE,
-                                                                            label = "[Atividadde]:",
-                                                                            label_style = ft.TextStyle(
-                                                                                color = ft.Colors.BLACK,
-                                                                                size = 15,
-                                                                                italic = True
-                                                                            ),
-                                                                            text_style = ft.TextStyle(
-                                                                                color = ft.Colors.BLACK,
-                                                                                size = 12,
-                                                                            )
-                                                                        ),
-                                                                        ft.TextField(
-                                                                            "",
-                                                                            bgcolor = ft.Colors.WHITE,
-                                                                            label = "[Responsavel]:",
-                                                                            icon = ft.Icon(
-                                                                                name = ft.Icons.ARROW_CIRCLE_RIGHT,
-                                                                                color = ft.Colors.WHITE,
-                                                                                size = 30,
-                                                                                tooltip = "mover"
-                                                                            ),
-                                                                            label_style = ft.TextStyle(
-                                                                                color = ft.Colors.BLACK,
-                                                                                size = 12,
-                                                                                italic=True
-                                                                            ),
-                                                                            text_style = ft.TextStyle(
-                                                                                color = ft.Colors.BLACK,
-                                                                                size=12
-                                                                                )
-                                                                        ),
-                                                                        ft.TextField(
-                                                                            "",
-                                                                            label = "[Descrição]:",
-                                                                            label_style = ft.TextStyle(
-                                                                                color = ft.Colors.BLACK,
-                                                                                size = 15,
-                                                                                italic=True
-                                                                            ),
-                                                                            multiline = True,
-                                                                            bgcolor = ft.Colors.WHITE,
-                                                                            text_style = ft.TextStyle(
-                                                                                color=ft.Colors.BLACK,
-                                                                                size=12
-                                                                            )
-                                                                        )
-                                                                    ]
-                                                                )
-                                                            ),
-                                                        )
-                                                    ),
-                                                    # main container
-                                                    ft.Container(
-                                                        width=250,
-                                                        margin=60,
-                                                        height=250,
-                                                        border=ft.border.all(2, ft.Colors.PURPLE),
-                                                        border_radius=10,
-                                                        padding=10,
-                                                        bgcolor=ft.Colors.ORANGE_400,
-                                                        content=ft.DragTarget(
-                                                            on_accept=con.drag_accept,
-                                                            content=ft.Draggable(
-                                                                ft.Column(
-                                                                    controls = [
-                                                                        ft.TextField(
-                                                                            "",
-                                                                            bgcolor=ft.Colors.WHITE,
-                                                                            label = "[Atividadde]:",
-                                                                            label_style = ft.TextStyle(
-                                                                                color=ft.Colors.BLACK,
-                                                                                size=15, italic=True
-                                                                            ),
-                                                                            text_style=ft.TextStyle(
-                                                                                color=ft.Colors.BLACK,
-                                                                                size=12,
-                                                                            )
-                                                                        ),
-                                                                        ft.TextField(
-                                                                            "",
-                                                                            bgcolor=ft.Colors.WHITE,
-                                                                            label="[Responsavel]:",
-                                                                            icon= ft.Icon(
-                                                                                name=ft.Icons.ARROW_CIRCLE_RIGHT,
-                                                                                color=ft.Colors.WHITE,
-                                                                                size=30,
-                                                                                tooltip="mover"
-                                                                            ),
-                                                                            label_style=ft.TextStyle(
-                                                                                color=ft.Colors.BLACK,
-                                                                                size=12,
-                                                                                italic=True
-                                                                            ),
-                                                                            text_style=ft.TextStyle(
-                                                                                color=ft.Colors.BLACK,
-                                                                                size=12,
-                                                                                )
-                                                                        ),
-                                                                        ft.TextField(
-                                                                            "",
-                                                                            label="[Descrição]:",
-                                                                            label_style=ft.TextStyle(
-                                                                                color=ft.Colors.BLACK,
-                                                                                size=15,
-                                                                                italic=True
-                                                                            ),
-                                                                            multiline=True,
-                                                                            bgcolor=ft.Colors.WHITE,
-                                                                            text_style=ft.TextStyle(
-                                                                                color=ft.Colors.BLACK,
-                                                                                size=12
-                                                                            )
-                                                                        )
-                                                                    ]
-                                                                )
-                                                            ),
-                                                        ),
-                                                    ),
-                                                    ft.FloatingActionButton(
-                                                        icon=ft.Icons.ADD,
-                                                        tooltip="adicionar atividade",
-                                                        on_click=lambda e: con.page.open(con.painel_de_criacao2),
-                                                        bgcolor=ft.Colors.PURPLE
-                                                    )
-                                                ]
-                                            ),
-                                            ft.FloatingActionButton(
-                                                icon=ft.Icons.ADD,
-                                                tooltip="adicionar cartão na coluna",
-                                                on_click=lambda e: con.page.open(con.painel_de_criacao2),
-                                                bgcolor=ft.Colors.PURPLE
-                                            )
+                                               scroll=ft.ScrollMode.ALWAYS,
+                                               controls=con.recuperar_colunas(limite, cores)
+                                            ) # Row
                                         ]
-                                    )
+                                    ) # Column
                                 ]
                             )
                         ],
                         alignment=ft.MainAxisAlignment.START,
                         expand=True
-                    ),
+                    ) # Column
                 ],
                 expand=True,
             ) # Row

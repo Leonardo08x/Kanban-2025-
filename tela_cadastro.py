@@ -1,5 +1,6 @@
 import flet as ft
 import controle as con
+import criacao as cri
 
 
 def view():
@@ -7,42 +8,26 @@ def view():
         "tela0",
         controls =[
             #appbar titulo
-            ft.AppBar(
-                leading=ft.Icon(ft.Icons.TASK_ALT),
-                leading_width=100,
-                center_title=False,
-                toolbar_height=55,
-                bgcolor=ft.Colors.PURPLE_300,
-                title=ft.Text(
-                    text_align=ft.TextAlign.START,
-                    spans=[
-                        ft.TextSpan(
-                            "KANBAN",
-                            ft.TextStyle(
-                               size=32,
-                                font_family="Kanit",
-                                weight=ft.FontWeight.BOLD,
-                                foreground=ft.Paint(
-                                    gradient=ft.PaintLinearGradient(
-                                        (2000, 150),
-                                        (150, 2000),
-                                        [
-                                            ft.Colors.BLACK,
-                                            ft.Colors.PURPLE
-                                        ]
-                                    )
-                                ),
-                            ),
-                        ),
-                    ]
-                )
-            ),
+            con.appbar,
             # primeira linha
-            ft.Row(expand=True,
-                
-               controls= [   
-
-                    con.rail ,
+            ft.Row(
+                expand=True,
+                controls= [
+                    ft.NavigationRail(
+                        selected_index=None,
+                        label_type=ft.NavigationRailLabelType.ALL,
+                        bgcolor=ft.Colors.PURPLE_500,
+                        min_width=100,
+                        min_extended_width=400,
+                        leading=ft.FloatingActionButton(
+                            icon=ft.Icons.ADD_TASK,
+                            text="Add",
+                            on_click = lambda e: con.page.open(cri.painel_de_criacao)
+                        ),
+                        group_alignment=-0.9,
+                        on_change= lambda e:  con.page.go(str(e.control.selected_index)),
+                        destinations = con.destinos
+                    ),
                     ft.VerticalDivider(width=1),
                     ft.Column(
                         [
@@ -72,10 +57,6 @@ def view():
                                                            , ft.Checkbox(label="PESQUISAR POR USUARIO", on_change=lambda e: print("VOU DEIXAR O OCO"),fill_color=ft.Colors.DEEP_PURPLE,shape= ft.CircleBorder())
                                                         ]
                                                     ), # Row
-                                                    ft.Row(
-                                                        scroll=ft.ScrollMode.ALWAYS,
-                                                        controls = con.recuperar_kanbam()
-                                                    ) # Row
                                                 ]
                                             ),
                                             # botão adicionar, incluir em uma linha
@@ -93,8 +74,8 @@ def view():
                         alignment=ft.MainAxisAlignment.START,
                         expand=True
                     ) # Column
-             ],
-             
-            tight=True) # Row
+                ], 
+                tight=True
+            ) # Row
         ]
     )
