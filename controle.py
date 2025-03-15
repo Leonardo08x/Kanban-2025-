@@ -54,8 +54,10 @@ def recuperar_colunas(limite,cores):
                 border=ft.border.all(2, ft.Colors.PURPLE),
                 border_radius = 10,
                 padding = 10,
+                on_long_press=expandir_coluna,
                 bgcolor=cores[i],
-                content=ft.DragTarget(
+                content=ft.Column(controls=[
+                      ft.DragTarget(
                     on_accept=drag_accept,
                     content=ft.Draggable(
                         ft.Column(
@@ -108,12 +110,12 @@ def recuperar_colunas(limite,cores):
                                         color=ft.Colors.BLACK,
                                         size=12
                                     )
-                                )
-                            ]
+                                ), 
+                           ]
                         )
                     ),
                 )
-            )
+           , ft.Icon(name=ft.Icons.ADD, color=ft.Colors.WHITE, size=30,tooltip="segure para adicionar uma nova atividade\n maximo de 4 ativiaddes")]) )
         )
                             
     return colunas
@@ -191,7 +193,7 @@ def criar_kanban(e):
                     [
                         rail,
                         ft.VerticalDivider(width=1),
-                        ft.Column(
+                        ft.Column(scroll=ft.ScrollMode.ALWAYS,controls=
                             [
                                 ft.Stack(
                                     [
@@ -203,8 +205,8 @@ def criar_kanban(e):
                                             height=1080
                                         ),
                                         ft.Text(f"{nome_do_Kanbam}"),
-                                        ft.Column([ft.Row( scroll=ft.ScrollMode.ALWAYS,controls=
-                                  recuperar_colunas(limite,cores))])
+                                        ft.Column(scroll=ft.ScrollMode.ADAPTIVE,controls=[ft.Row( scroll=ft.ScrollMode.ALWAYS,controls=
+                                  recuperar_colunas(limite,cores)),])
                                     ]
                                 )
                             ],
@@ -228,7 +230,13 @@ def criar_kanban(e):
    destinos.append(destino_template)
    page.update()
    page.close(painel_de_criacao)
-
+   nome_kamb.value = ''
+   blue.value = False
+   green.value = False
+   yellow.value= False
+   orange.value = False
+   red.value = False
+   slider.value = 2
 
 
 
@@ -621,7 +629,7 @@ def init(p):
                                                         ),
                                                         ft.FloatingActionButton(
                                                             icon=ft.Icons.ADD,
-                                                            tooltip="adicionar cartão na linha",
+                                                            tooltip="adicionar atividade",
                                                             on_click=lambda e: page.open(painel_de_criacao2),
                                                             bgcolor=ft.Colors.PURPLE
                                                         )
@@ -793,12 +801,79 @@ def deletar_kanbam(e):
     for i in list(telas.keys()):
         if int(i)>int(tela_deletada):
             telas[str(int(i)-1)] = telas.pop(str(i))
-    rail.selected_index = '0'
-    page.go('0')
     page.views.clear()
     page.update()
+    rail.selected_index = '0'
+    page.go('0')
+    
+    page.update()
    
-
+def expandir_coluna(e):
+    print(e.control.content.controls)
+    if len(e.control.content.controls) < 7:
+        e.control.height+=195
+        e.control.content.controls.extend([            ft.Divider(height=5, color="white"),
+                                        
+                        ft.DragTarget(
+                        on_accept=drag_accept,content=
+                        ft.Draggable(
+                            ft.Column( 
+                                controls = [
+                                    ft.TextField(
+                                        "",
+                                        bgcolor = ft.Colors.WHITE,
+                                        label = "[Atividadde]:",
+                                        label_style = ft.TextStyle(
+                                            color = ft.Colors.BLACK,
+                                            size = 15,
+                                            italic = True
+                                        ),
+                                        text_style = ft.TextStyle(
+                                            color = ft.Colors.BLACK,
+                                            size = 12,
+                                        )
+                                    ),
+                                    ft.TextField(
+                                        "",
+                                        bgcolor = ft.Colors.WHITE,
+                                        label = "[Responsavel]:",
+                                        icon = ft.Icon(
+                                            name = ft.Icons.ARROW_CIRCLE_RIGHT,
+                                            color = ft.Colors.WHITE,
+                                            size = 30,
+                                            tooltip = "mover"
+                                        ),
+                                        label_style = ft.TextStyle(
+                                            color = ft.Colors.BLACK,
+                                            size = 12,
+                                            italic=True
+                                        ),
+                                        text_style = ft.TextStyle(
+                                            color = ft.Colors.BLACK,
+                                            size=12
+                                            )
+                                    ),
+                                    ft.TextField(
+                                        "",
+                                        label = "[Descrição]:",
+                                        label_style = ft.TextStyle(
+                                            color = ft.Colors.BLACK,
+                                            size = 15,
+                                            italic=True
+                                        ),
+                                        multiline = True,
+                                        bgcolor = ft.Colors.WHITE,
+                                        text_style = ft.TextStyle(
+                                            color=ft.Colors.BLACK,
+                                            size=12
+                                        )
+                                    ),
+                                ]
+                            )
+                        )),
+                    
+                ])
+    page.update()
 def recuperar_kanbam():
     
     return kanbans
