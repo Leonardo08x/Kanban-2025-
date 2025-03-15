@@ -53,7 +53,7 @@ def handle_close(e):
 def desabilita_botão_criar(e):
     cores = [blue.value, green.value, red.value, yellow.value, orange.value]
 
-    if sum(cores) == int(slider.value):
+    if len(list(con.telas.keys()))<10 and sum(cores) == int(slider.value):
         criar_botao.disabled = False
     else:
         criar_botao.disabled = True
