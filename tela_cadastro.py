@@ -38,9 +38,11 @@ def view():
                 )
             ),
             # primeira linha
-            ft.Row(
-                [
-                    con.rail,
+            ft.Row(expand=True,
+                
+               controls= [   
+
+                    con.rail ,
                     ft.VerticalDivider(width=1),
                     ft.Column(
                         [
@@ -91,8 +93,8 @@ def view():
                         alignment=ft.MainAxisAlignment.START,
                         expand=True
                     ) # Column
-                ],
-                expand=True
-            ) # Row
+             ],
+             
+            tight=True) # Row
         ]
     )

@@ -2,61 +2,44 @@ import tela_cadastro, tela_tabela
 import flet as ft
 
 #TROCAR PAGINA PELO ON CLICK NA INICIAL
-##################################componentes##########################
-slider = ft.Slider(
-                              
-                    min=2,
-                    max=4,
-                    divisions=2,
-                    inactive_color=ft.Colors.GREY_900,
-                    active_color=ft.Colors.WHITE,
-                    overlay_color=ft.Colors.BLACK,
-                    label="{value}",
-                )
-green = ft.Checkbox(
-    label="",
-    on_change=lambda e: print("VOU DEIXAR O OCO"),
-    fill_color=ft.Colors.GREEN,
-    shape=ft.CircleBorder(),value=False
-)
 
-red = ft.Checkbox(
-    label="",
-    on_change=lambda e: print("VOU DEIXAR O OCO"),
-    fill_color=ft.Colors.RED,
-    shape=ft.CircleBorder(),value=False
-)
-
-yellow = ft.Checkbox(
-    label="",
-    on_change=lambda e: print("VOU DEIXAR O OCO"),
-    fill_color=ft.Colors.YELLOW,
-    shape=ft.CircleBorder(),value=False
-)
-
-orange = ft.Checkbox(
-    label="",
-    on_change=lambda e: print("VOU DEIXAR O OCO"),
-    fill_color=ft.Colors.ORANGE,
-    shape=ft.CircleBorder(),value=False
-)
-
-blue = ft.Checkbox(
-    label="",
-    fill_color=ft.Colors.BLUE,
-    shape=ft.CircleBorder(),value=False
-)
-nome_kamb =ft.TextField(
-      
-        label='nome do KANBAN',
-        label_style = ft.TextStyle(font_family="Kanit"),
-        icon='TASK_ALT'
-    )
-
-
-##############################fim dos componentes############################################
 
 ########################criação de kanban##################################################################
+def desabilita_botão_criar(e):
+    cores = []
+    nome_do_Kanbam = nome_kamb.value
+    
+    limite = int(slider.value)
+
+    BLUE = blue.value
+    if BLUE == True:
+        cores.append(ft.Colors.BLUE)
+
+    GRENN =  green.value
+    if GRENN  == True:
+        cores.append(ft.Colors.GREEN )
+
+    RED = red.value
+    if  RED== True:
+        cores.append(ft.Colors.RED)
+
+    YELLOW = yellow.value
+    if YELLOW == True:
+        cores.append(ft.Colors.YELLOW)
+
+    ORANGE = orange.value
+    if ORANGE == True:
+        cores.append(ft.Colors.ORANGE)
+
+    if len(list(telas.keys()))<10:
+
+        if len(cores) == limite:
+                    criar_botao.disabled = False
+        else:
+                criar_botao.disabled = True
+    else:
+                criar_botao.disabled = True
+    page.update()
 def recuperar_colunas(limite,cores):
     colunas = []
     print(cores)
@@ -160,7 +143,7 @@ def criar_kanban(e):
    ORANGE = orange.value
    if ORANGE == True:
     cores.append(ft.Colors.ORANGE)
-
+  
    template_view =  ft.View(
             "tela2",
             controls =[
@@ -178,7 +161,7 @@ def criar_kanban(e):
                         ft.IconButton(
                             icon=ft.Icons.DELETE_FOREVER_ROUNDED,
                             icon_color=ft.Colors.WHITE,
-                            icon_size=30,)
+                            icon_size=30,on_click =deletar_kanbam)
                     ],
                     title=ft.Text(
                         text_align=ft.TextAlign.START,
@@ -220,7 +203,7 @@ def criar_kanban(e):
                                             height=1080
                                         ),
                                         ft.Text(f"{nome_do_Kanbam}"),
-                                        ft.Column([ft.Row(
+                                        ft.Column([ft.Row( scroll=ft.ScrollMode.ALWAYS,controls=
                                   recuperar_colunas(limite,cores))])
                                     ]
                                 )
@@ -254,7 +237,67 @@ def criar_kanban(e):
 
 ##############################fim da criação###################################################################
 
+##################################componentes##########################
 
+
+criar_botao = ft.ElevatedButton(
+                    "criar",
+                    style = ft.ButtonStyle(bgcolor = ft.Colors.BLACK38),
+                    on_click=criar_kanban,disabled=True,tooltip="Só é possivel criar 8 kanbans \n o numero de colunas deve ser igual a quantidade de cores escolhida"
+                )
+
+slider = ft.Slider(
+                              
+                    min=2,
+                    max=4,
+                    divisions=2,
+                    inactive_color=ft.Colors.GREY_900,
+                    active_color=ft.Colors.WHITE,
+                    overlay_color=ft.Colors.BLACK,
+                    label="{value}",on_change=desabilita_botão_criar
+                )
+green = ft.Checkbox(
+    label="",
+    on_change=desabilita_botão_criar,
+    fill_color=ft.Colors.GREEN,
+    shape=ft.CircleBorder(),value=False,
+)
+
+red = ft.Checkbox(
+    label="",
+    on_change=desabilita_botão_criar,
+    fill_color=ft.Colors.RED,
+    shape=ft.CircleBorder(),value=False
+)
+
+yellow = ft.Checkbox(
+    label="",
+    on_change=desabilita_botão_criar,
+    fill_color=ft.Colors.YELLOW,
+    shape=ft.CircleBorder(),value=False
+)
+
+orange = ft.Checkbox(
+    label="",
+   on_change=desabilita_botão_criar,
+    fill_color=ft.Colors.ORANGE,
+    shape=ft.CircleBorder(),value=False
+)
+
+blue = ft.Checkbox(
+    label="",
+    fill_color=ft.Colors.BLUE,
+    shape=ft.CircleBorder(),value=False,on_change=desabilita_botão_criar
+)
+nome_kamb =ft.TextField(
+      
+        label='nome do KANBAN',
+        label_style = ft.TextStyle(font_family="Kanit"),
+        icon='TASK_ALT'
+    )
+
+
+##############################fim dos componentes############################################
 
 
 ##########################listas##############################################################################
@@ -608,7 +651,10 @@ def init(p):
 
 
 def controle_de_rota(route_event):
+    global tela_atual
     page.views.clear()
+    tela_atual = route_event.route
+
     page.views.append(telas[route_event.route])
     page.update()
 
@@ -627,7 +673,6 @@ def drag_accept(e):
 rail = ft.NavigationRail(
     selected_index=None,
     label_type=ft.NavigationRailLabelType.ALL,
-    # extended=True,
     bgcolor=ft.Colors.PURPLE_500,
     min_width=100,
     min_extended_width=400,
@@ -665,6 +710,7 @@ def handle_close2(e):
 ########################################################################################################
 
 ###############################################paine de criação##########################################
+
 painel_de_criacao = ft.AlertDialog(
     modal=True,
     bgcolor = ft.Colors.PURPLE,
@@ -691,12 +737,8 @@ painel_de_criacao = ft.AlertDialog(
         ft.Row(
             [
             # programar a função criar
-                ft.TextButton(
-                    "criar",
-                    style = ft.ButtonStyle(bgcolor = ft.Colors.BLACK38),
-                    on_click=criar_kanban
-                ),
-                ft.TextButton(
+               criar_botao,
+                ft.ElevatedButton(
                     "cancelar",
                     style = ft.ButtonStyle(bgcolor = ft.Colors.BLACK38),
                     on_click=handle_close
@@ -744,7 +786,18 @@ painel_de_criacao2 = ft.AlertDialog(
 )
 #########################################utilidades#########################################################
 
-
+def deletar_kanbam(e):
+    tela_deletada = tela_atual
+    del telas[tela_deletada]
+    destinos.pop(int(tela_deletada))
+    for i in list(telas.keys()):
+        if int(i)>int(tela_deletada):
+            telas[str(int(i)-1)] = telas.pop(str(i))
+    rail.selected_index = '0'
+    page.go('0')
+    page.views.clear()
+    page.update()
+   
 
 def recuperar_kanbam():
     

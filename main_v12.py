@@ -12,7 +12,7 @@ def main(page: ft.Page):
     #titulo do exe
     page.title = "Sistema de cadastro"
     #controle de rota
-
+    
     #tema
     page.dark_theme = ft.Theme(color_scheme_seed=ft.Colors.DEEP_PURPLE)
 
