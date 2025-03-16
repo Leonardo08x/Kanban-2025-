@@ -945,29 +945,44 @@ def expandir_coluna(e):
 def salvar_dados(e):
     containers = 0
     atividades_por_container = []
-    lista_conteudo = []
+    #lista_conteudo = []
+    atividades_nome = []
+    responsavel_nome = []
+    descrição = []
     for i in telas[tela_atual].controls[1].controls[2].controls[0].controls[2].controls[0].controls:
-     print(i)
      lista_containers = i.content.controls
-     print(lista_containers)
      containers+=1
      atividades = 0
-     conteudo = []
+     conteudoA = []
+     conteudoR = []
+     conteudoD = []
      for cont in lista_containers  :
         try:
          lista_text_field = cont.content.content.controls
          atividades +=1
+         contador = 1
          for j in lista_text_field:
              print(j.value)
-             conteudo.append(j.value)
+             if contador ==1:
+              conteudoA.append(j.value)
+             if contador ==2:
+              conteudoR.append(j.value)
+             if contador ==3:
+              conteudoD.append(j.value)
+             contador+=1
         except:
             pass
-     lista_conteudo.append(conteudo) 
+     atividades_nome.extend(conteudoA) 
+     responsavel_nome.extend(conteudoR)
+
      atividades_por_container.append(atividades)
-     for i in list(dicionario_de_cartoes.keys()):
+
+    for i in list(dicionario_de_cartoes.keys()):
          if i.split(',')[0] == tela_atual:
-             dicionario_de_cartoes[i] = lista_conteudo
+             dicionario_de_cartoes[i] = [atividades_nome ,responsavel_nome]
              print(dicionario_de_cartoes)
+
+
 
 
 def recuperar_kanbam():
