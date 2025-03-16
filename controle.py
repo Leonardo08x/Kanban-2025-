@@ -3,12 +3,11 @@ import flet as ft
 
 #TROCAR PAGINA PELO ON CLICK NA INICIAL
 
-
+global kanbans
 ########################criação de kanban##################################################################
 def desabilita_botão_criar(e):
     cores = []
     nome_do_Kanbam = nome_kamb.value
-    
     limite = int(slider.value)
 
     BLUE = blue.value
@@ -157,7 +156,7 @@ def criar_kanban(e):
                         ft.IconButton(
                             ft.Icons.SAVE,
                             icon_color=ft.Colors.WHITE,
-                            icon_size=30,on_click=lambda e: print("teste gay")
+                            icon_size=30,on_click=salvar_dados
                         ),
                         #botão apagar adicionar função
                         ft.IconButton(
@@ -196,7 +195,7 @@ def criar_kanban(e):
                         ft.Column(scroll=ft.ScrollMode.ALWAYS,controls=
                             [
                                 ft.Stack(
-                                    [
+                                    controls=[
                                         ft.Container(
                                             image_src='https://4kwallpapers.com/images/wallpapers/windows-11-stock-purple-abstract-black-background-amoled-2880x1800-9056.jpg',
                                             image_fit=ft.ImageFit.COVER,
@@ -228,20 +227,65 @@ def criar_kanban(e):
    ultimo = int(chaves_telas[-1])+1
    telas[f"{str(ultimo)}"] = template_view
    destinos.append(destino_template)
+
+   dicionario_de_cartoes[f'{ultimo},{nome_do_Kanbam}']=[]
+
+   adiciona_cartão(nome_do_Kanbam,ultimo)
+
    page.update()
    page.close(painel_de_criacao)
-   nome_kamb.value = ''
    blue.value = False
    green.value = False
    yellow.value= False
    orange.value = False
    red.value = False
    slider.value = 2
-
-
-
-
-
+   criar_botao.disabled = True
+   nome_kamb.value = ''
+   page.go('0')
+   
+def adiciona_cartão(nome,index):
+   card_template= ft.Container(
+        width=220,
+        height=150,
+        bgcolor=ft.Colors.PURPLE,
+        padding = 20,
+        border=ft.border.all(2, ft.Colors.DEEP_PURPLE_500),
+        border_radius=10,
+        content=ft.Column(
+            [
+                ft.TextField(
+                    nome,
+                    bgcolor=ft.Colors.DEEP_PURPLE_500,
+                    read_only = True,
+                    label = "Nome do Kanban",
+                    icon=ft.Icons.TASK_ALT,
+                    label_style = ft.TextStyle(
+                        color = ft.Colors.WHITE,
+                        size = 15,
+                        italic=True
+                    ),
+                    text_style = ft.TextStyle(
+                        color=ft.Colors.WHITE,
+                        size=12,
+                    )
+                ), # TextField
+                # funcao go linkada ao index do view
+                ft.TextButton(
+                    "GO",
+                    icon=ft.Icons.MOVING,
+                    style = ft.ButtonStyle(
+                        bgcolor = ft.Colors.DEEP_PURPLE_500
+                    ),
+                    on_click=lambda e: page.go(str(index))
+                )
+            ]
+        ) # Column
+    )
+      
+   kanbans.append(card_template)
+   telas['0'].controls[1].controls[2].controls[0].controls[1].controls[0].controls[1].controls = kanbans
+   
 
 ##############################fim da criação###################################################################
 
@@ -304,6 +348,7 @@ nome_kamb =ft.TextField(
         icon='TASK_ALT'
     )
 
+dicionario_de_cartoes = {}
 
 ##############################fim dos componentes############################################
 
@@ -355,7 +400,11 @@ ft.Container(
         ) # Column
     )
       # Container
-                                                        ]
+ ]
+linha_com_membros =  ft.Row(
+                                                        scroll=ft.ScrollMode.ALWAYS,
+                                                        controls = kanbans,expand=True
+                                                    )
 destinos = [
         ft.NavigationRailDestination(
             icon=ft.Icons.LIST,
@@ -794,13 +843,31 @@ painel_de_criacao2 = ft.AlertDialog(
 )
 #########################################utilidades#########################################################
 
+
+##############################concert os index apos os templates terem sido deletados, kanbans e dicionario_de_cartoes
 def deletar_kanbam(e):
     tela_deletada = tela_atual
     del telas[tela_deletada]
     destinos.pop(int(tela_deletada))
+    del kanbans[:]
+    print(kanbans)
     for i in list(telas.keys()):
         if int(i)>int(tela_deletada):
             telas[str(int(i)-1)] = telas.pop(str(i))
+    #kanbans = []
+    for i in list(dicionario_de_cartoes.keys()):
+        print(i.split(',')[0],tela_deletada)
+        if int(i.split(',')[0])>int(tela_deletada):
+            print("worked")
+            dicionario_de_cartoes[f"{int(i.split(',')[0])-1},{i.split(',')[1]}"] = dicionario_de_cartoes.pop(str(i))
+            adiciona_cartão(i.split(',')[1],f"{int(i.split(',')[0])-1}")
+        if int(i.split(',')[0])<int(tela_deletada):
+             adiciona_cartão(i.split(',')[1],f"{int(i.split(',')[0])}")
+        if int(i.split(',')[0])==int(tela_deletada):
+            dicionario_de_cartoes.pop(str(i))
+    
+    telas['0'].controls[1].controls[2].controls[0].controls[1].controls[0].controls[1].controls = kanbans
+    print(kanbans)
     page.views.clear()
     page.update()
     rail.selected_index = '0'
@@ -874,12 +941,40 @@ def expandir_coluna(e):
                     
                 ])
     page.update()
+#[0].content.content.controls
+def salvar_dados(e):
+    containers = 0
+    atividades_por_container = []
+    lista_conteudo = []
+    for i in telas[tela_atual].controls[1].controls[2].controls[0].controls[2].controls[0].controls:
+     print(i)
+     lista_containers = i.content.controls
+     print(lista_containers)
+     containers+=1
+     atividades = 0
+     conteudo = []
+     for cont in lista_containers  :
+        try:
+         lista_text_field = cont.content.content.controls
+         atividades +=1
+         for j in lista_text_field:
+             print(j.value)
+             conteudo.append(j.value)
+        except:
+            pass
+     lista_conteudo.append(conteudo) 
+     atividades_por_container.append(atividades)
+     for i in list(dicionario_de_cartoes.keys()):
+         if i.split(',')[0] == tela_atual:
+             dicionario_de_cartoes[i] = lista_conteudo
+             print(dicionario_de_cartoes)
+
+
 def recuperar_kanbam():
     
     return kanbans
 
 def recuperar_membros():
-    
     return membros
 
 

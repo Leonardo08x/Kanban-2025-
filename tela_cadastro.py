@@ -72,10 +72,7 @@ def view():
                                                            , ft.Checkbox(label="PESQUISAR POR USUARIO", on_change=lambda e: print("VOU DEIXAR O OCO"),fill_color=ft.Colors.DEEP_PURPLE,shape= ft.CircleBorder())
                                                         ]
                                                     ), # Row
-                                                    ft.Row(
-                                                        scroll=ft.ScrollMode.ALWAYS,
-                                                        controls = con.recuperar_kanbam()
-                                                    ) # Row
+                                                   con.linha_com_membros
                                                 ]
                                             ),
                                             # botão adicionar, incluir em uma linha
