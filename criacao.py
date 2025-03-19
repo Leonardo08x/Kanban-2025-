@@ -1,166 +1,151 @@
 import flet as ft
 import controle as con
+from lista_de_cores import cores
+from bd import bd
+
+
+
+def botoes():
+    global botao_criar
+    # botao criar como global para ser alterado na funcao autorizar_criar_kanban
+    botao_criar = ft.ElevatedButton(
+            text='Criar',
+            on_click=criar_kanban,
+            disabled=True,
+        )
+    # cria os botoes de criar e cancelar
+    return [
+        botao_criar,
+        ft.ElevatedButton(
+            'Cancelar',
+            on_click=fechar_alerta_dialog
+        )
+    ]
+
+
+def autorizar_criar_kanban(e=None):
+    global alerta_dialog, slider_colunas, cores_checkbox, botao_criar
+    # verifica se o nome do kanban foi preenchido e se o slider e as cores tem quantidades iguais
+    if alerta_dialog.content.value and slider_colunas.value == sum(cor.value for cor in cores_checkbox):
+        botao_criar.disabled = False
+    else:
+        botao_criar.disabled = True
+    
+    # atualiza a pagina para atualizar o botao
+    con.page.update()
+
+
+def fechar_alerta_dialog(e):
+    global alerta_dialog, cores_checkbox, botao_criar
+    # fechar caixa de dialogo
+    alerta_dialog.open = False
+    
+    # limpa o caixa de texto
+    alerta_dialog.content.value = ''
+    
+    # desmarca as cores
+    for cor in cores_checkbox:
+        cor.value = False
+
+    # desativa o botao de criar
+    botao_criar.disabled = True
+        
+    # atualiza a pagina
+    con.page.update()
+
 
 def criar_kanban(e):
-    cores = []
-    nome_do_Kanbam = nome_kamb.value
-    limite = int(slider.value)
+    global alerta_dialog, slider_colunas, cores_checkbox
+    # pega o nome do kanban
+    nome = alerta_dialog.content.value
 
-    if blue.value:
-        cores.append(ft.Colors.BLUE)
-        blue.value = False
+    # pega o numero de colunas
+    num_colunas = slider_colunas.value
 
-    if green.value:
-        cores.append(ft.Colors.GREEN)
-        green.value = False
+    # pega as cores
+    cores_selecionadas = [
+        cor.data
+        for cor in cores_checkbox
+        if cor.value
+    ]
 
-    if red.value:
-        cores.append(ft.Colors.RED)
-        red.value = False
-
-    if yellow.value:
-        cores.append(ft.Colors.YELLOW)
-        yellow.value = False
-
-    if orange.value:
-        cores.append(ft.Colors.ORANGE)
-        orange.value = False
-
-    
-    chaves_telas = list(con.telas.keys())
-    ultimo = int(chaves_telas[-1])+1
-    con.telas[f"{str(ultimo)}"] = con.tela_teste.view(limite, cores, nome_do_Kanbam)
-    con.destinos.append(
-        ft.NavigationRailDestination(
-            icon=ft.Icons.TASK_ALT,
-            selected_icon=ft.Icons.TASK_ALT_OUTLINED,
-            label=nome_do_Kanbam
-        )
+    # adiciona o kanban ao banco de dados
+    bd.append(
+        {
+            'nome': nome,
+            'colunas': [
+                {
+                    'nome': f'coluna {coluna+1}',
+                    'cor': cores_selecionadas[coluna],
+                    'tarefas': []
+                }
+                for coluna in range(int(num_colunas))
+            ]
+        }
     )
-
-    con.page.update()
-    con.page.close(painel_de_criacao)
-    nome_kamb.value = None
     
-    slider.value = 2
+    
+    # fechar caixa de dialogo e atualizar a pagina
+    fechar_alerta_dialog(e)
+
+    # atualiza as rotas do navigation rail para então carregar o novo kanban
+    con.carregar_rotas()
+    
+
+# variaveis globais
+# cria os Checkbox para escolher as cores a partir do dicionario cores
+cores_checkbox = [
+    ft.Checkbox(
+        fill_color=codigo,
+        shape=ft.CircleBorder(),
+        value=False,
+        data=cor,
+        on_change=autorizar_criar_kanban,
+    )
+    for cor, codigo in cores.items()
+]
 
 
-def handle_close(e):
-    con.page.close(painel_de_criacao)
-    con.page.add(ft.Text(f"Modal dialog closed with action: {e.control.text}"))
-
-
-def desabilita_botão_criar(e):
-    cores = [blue.value, green.value, red.value, yellow.value, orange.value]
-
-    if len(list(con.telas.keys()))<10 and sum(cores) == int(slider.value):
-        criar_botao.disabled = False
-    else:
-        criar_botao.disabled = True
-
-    con.page.update()
-
-
-green = ft.Checkbox(
-    fill_color=ft.Colors.GREEN,
-    shape=ft.CircleBorder(),
-    value=False,
-    on_change=desabilita_botão_criar
-)
-
-
-red = ft.Checkbox(
-    fill_color=ft.Colors.RED,
-    shape=ft.CircleBorder(),
-    value=False,
-    on_change=desabilita_botão_criar
-)
-
-
-yellow = ft.Checkbox(
-    fill_color=ft.Colors.YELLOW,
-    shape=ft.CircleBorder(),
-    value=False,
-    on_change=desabilita_botão_criar
-)
-
-orange = ft.Checkbox(
-    fill_color=ft.Colors.ORANGE,
-    shape=ft.CircleBorder(),
-    value=False,
-    on_change=desabilita_botão_criar
-)
-
-
-blue = ft.Checkbox(
-    fill_color=ft.Colors.BLUE,
-    shape=ft.CircleBorder(),
-    value=False,
-    on_change=desabilita_botão_criar
-)
-
-
-slider = ft.Slider(
-    min=2,
-    max=4,
-    divisions=2,
-    inactive_color=ft.Colors.GREY_900,
-    active_color=ft.Colors.WHITE,
-    overlay_color=ft.Colors.BLACK,
-    label="{value}",
-    on_change=desabilita_botão_criar
-)
-
-
-criar_botao = ft.ElevatedButton(
-    "criar",
-    style = ft.ButtonStyle(bgcolor = ft.Colors.BLACK38),
-    on_click=criar_kanban,
-    disabled=True,
-    tooltip="Só é possivel criar 8 kanbans\no numero de colunas deve ser igual a quantidade de cores escolhida"
-)
-
-
-nome_kamb = ft.TextField(
-    label='Nome do KANBAN',
-    label_style = ft.TextStyle(font_family="Kanit"),
-    icon='TASK_ALT'
-)
-
-
-painel_de_criacao = ft.AlertDialog(
+# caixa de dialogo para criação de kanbans
+alerta_dialog = ft.AlertDialog(
     modal=True,
-    bgcolor = ft.Colors.PURPLE,
-    title=ft.Text("BUFAS EXE"),
-    content=nome_kamb,
+    title=ft.Text('Criar um novo kanban'),
+    content=ft.TextField(
+        label='Nome do kanban',
+        autofocus=True,
+        on_change=autorizar_criar_kanban
+        ),
     actions=[
-        ft.Row(
-            [
-                green,
-                red,
-                yellow,
-                orange,
-                blue
-            ]
-        ), # Row
-        ft.Row(
-            [
+        # slider para escolher o numero de colunas
+        ft.Column(
+            controls=[
                 ft.Text("Selecione o numero de colunas:"),
-                slider
-            ]
-        ), # Row
+                ft.Slider(
+                    min=2,
+                    max=5,
+                    divisions=3,
+                    label='{value}',
+                    on_change=autorizar_criar_kanban
+                ),
+            ],
+            expand=True,
+        ),
+        # checkbox para escolher as cores
         ft.Row(
-            [
-            # programar a função criar
-                criar_botao,
-                ft.ElevatedButton(
-                    "cancelar",
-                    style = ft.ButtonStyle(bgcolor = ft.Colors.BLACK38),
-                    on_click=handle_close
-                )
-            ]
-        ) # Row
+            controls=cores_checkbox,
+            alignment=ft.MainAxisAlignment.SPACE_AROUND,
+            expand=True,
+        ),
+        # botoes criar ou cancelar
+        ft.Row(
+            controls=botoes(),
+            alignment=ft.MainAxisAlignment.SPACE_AROUND,
+            expand=True,
+        )
     ],
     actions_alignment=ft.MainAxisAlignment.END,
-    on_dismiss=lambda e: print("kanban criado com sucesso"),
 )
+
+
+# atualiza o numero de colunas dinamicamente
+slider_colunas = alerta_dialog.actions[0].controls[1]

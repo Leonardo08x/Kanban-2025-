@@ -1,293 +1,118 @@
-import tela_cadastro, tela_tabela, tela_teste, cor
-import funcoes as fun
+import gerenciamento, pesquisar, criacao, bd, erro, visualizar
 import flet as ft
-
-#TROCAR PAGINA PELO ON CLICK NA INICIAL
-
-
-########################criação de kanban##################################################################
-
-def recuperar_colunas(limite, cores):
-    colunas = []
-    print(cores)
-    for i in range(limite):
-    #função de listas vai aqui
-        colunas.append(
-            # main container
-            ft.Container(
-                width=250,
-                margin=60,
-                height=250,
-                border=ft.border.all(2, ft.Colors.PURPLE),
-                border_radius=10,
-                padding=10,
-                on_long_press=expandir_coluna,
-                bgcolor=cores[i],
-                content=ft.Column(
-                    controls=[
-                        ft.DragTarget(
-                            on_accept=drag_accept,
-                            content=ft.Draggable(
-                                ft.Column(
-                                    controls = [
-                                        ft.TextField(
-                                            bgcolor = ft.Colors.WHITE,
-                                            label = "[Atividadde]:",
-                                            label_style = ft.TextStyle(
-                                                color = ft.Colors.BLACK,
-                                                size = 15,
-                                                italic = True
-                                            ),
-                                            text_style = ft.TextStyle(
-                                                color = ft.Colors.BLACK,
-                                                size = 12
-                                            )
-                                        ), # TextField
-                                        ft.TextField(
-                                            bgcolor = ft.Colors.WHITE,
-                                            label = "[Responsavel]:",
-                                            icon = ft.Icon(
-                                                name = ft.Icons.ARROW_CIRCLE_RIGHT,
-                                                color = ft.Colors.WHITE,
-                                                size = 30,
-                                                tooltip = "mover"
-                                            ),
-                                            label_style = ft.TextStyle(
-                                                color = ft.Colors.BLACK,
-                                                size = 12,
-                                                italic=True
-                                            ),
-                                            text_style = ft.TextStyle(
-                                                color = ft.Colors.BLACK,
-                                                size=12
-                                                )
-                                        ), # TextField
-                                        ft.TextField(
-                                            label = "[Descrição]:",
-                                            label_style = ft.TextStyle(
-                                                color = ft.Colors.BLACK,
-                                                size = 15,
-                                                italic=True
-                                            ),
-                                            multiline = True,
-                                            bgcolor = ft.Colors.WHITE,
-                                            text_style = ft.TextStyle(
-                                                color=ft.Colors.BLACK,
-                                                size=12
-                                            )
-                                        ) # TextField
-                                    ]
-                                )
-                            )
-                        ),
-                        ft.Icon(
-                           name=ft.Icons.ADD,
-                           color=ft.Colors.WHITE,
-                           size=30,
-                           tooltip="segure para adicionar uma nova atividade\nmáximo de 4 ativiaddes"
-                        )
-                    ]
-                )
-            )
-        )
-    return colunas
-##############################fim da criação###################################################################
-
-##################################componentes##########################
-
-appbar = ft.AppBar(
-    leading=ft.Icon(ft.Icons.TASK_ALT),
-    leading_width=100,
-    center_title=False,
-    toolbar_height=55,
-    bgcolor=ft.Colors.PURPLE_300,
-    title = ft.Text(
-        text_align=ft.TextAlign.START,
-        spans=[
-            ft.TextSpan(
-                "KANBAN",
-                ft.TextStyle(
-                    size=32,
-                    font_family="Kanit",
-                    weight=ft.FontWeight.BOLD,
-                    foreground=ft.Paint(
-                        gradient=ft.PaintLinearGradient(
-                            (2000, 150),
-                            (150, 2000),
-                            [
-                                ft.Colors.BLACK,
-                                ft.Colors.PURPLE
-                            ]
-                        )
-                    )
-                )
-            )
-        ]
-    )
-)
-
-##############################fim dos componentes############################################
-
-
-##########################listas##############################################################################
-
-destinos = [
-    ft.NavigationRailDestination(
-        icon=ft.Icons.LIST,
-        selected_icon=ft.Icons.LIST_OUTLINED,
-        label="INICIO"
-    ),
-    ft.NavigationRailDestination(
-        icon=ft.Icons.PERSON,
-        selected_icon=ft.Icons.PERSON_OUTLINED,
-        label="MEMBROS"
-    ),
-]
-
-
-membros = [
-    ft.Container(
-        width=250,
-        height=250,
-        bgcolor=ft.Colors.PURPLE,
-        padding = 20,
-        border=ft.border.all(2, ft.Colors.DEEP_PURPLE_500),
-        border_radius=10,
-        content=ft.Column(
-            [
-                ft.TextField(
-                    "Pedro",
-                    bgcolor=ft.Colors.DEEP_PURPLE_500,
-                    read_only = True,
-                    label = "Menbro",
-                    icon=ft.Icons.PERSON_2,
-                    label_style = ft.TextStyle(
-                        color = ft.Colors.WHITE,
-                        size = 15,
-                        italic=True
-                    ),
-                    text_style = ft.TextStyle(
-                        color=ft.Colors.WHITE,
-                        size=12,
-                    )
-                ), # TextField
-                ft.TextField(
-                    "deve o agiota",
-                    label = "Atividades",
-                    label_style = ft.TextStyle(
-                        color = ft.Colors.WHITE,
-                        size = 15,
-                        italic=True
-                    ),
-                    multiline = True,
-                    icon=ft.Icons.LIST_ALT_ROUNDED,
-                    bgcolor = ft.Colors.DEEP_PURPLE_500
-                ) # TextField
-            ]
-        ) # Column
-    ) # Container
-]
-
-
-###########################################################fim das listas###################################
 
 
 def init(p):
-    global page, telas
+    global page
     page = p
-    telas = {
-        '0': tela_cadastro.view(),
-        '1': tela_tabela.view(),
+    carregar_rotas()
+
+
+def controle_de_rota(rota):
+    # apaga o conteudo da tela
+    tela_atual.controls.clear()
+    if rota.route in rotas.keys():
+        # adiciona o conteudo da rota a tela
+        tela_atual.controls += rotas[rota.route]
+    else:
+        # adiciona o conteudo da rota gerenciamento em caso de erro
+        tela_atual.controls += erro.conteudo()
+    page.update()
+    # atualiza o navigation rail
+    navigation_rail.selected_index = int(rota.route) if rota.route in rotas else None
+
+
+def carregar_rotas():
+    # carrega as rotas pre-existentes (gerenciamento e membros) e as rotas dinamicas do bd
+    global rotas, navigation_rail, destinos_fixos
+    rotas = {
+        '0': gerenciamento.conteudo(),
+        '1': pesquisar.conteudo(),
     }
+    for i, kanban in enumerate(bd.bd):
+        rotas[str(i+2)] = visualizar.visualizar_kanban(i)
+
+    # atualiza o navigation rail com os campos fixos e os kanbans
+    navigation_rail.destinations = destinos_fixos + destinos_dinamicos()
+    # atualiza a pagina
+    controle_de_rota(page)
 
 
-def controle_de_rota(route_event):
-    global tela_atual
-    page.views.clear()
-    tela_atual = route_event.route
-    page.views.append(telas[tela_atual])
-    page.update()
+# variaveis globais #
+
+# tela atual que vai adiquirir o conteudo das rotas
+tela_atual = ft.Row(expand=True)
 
 
-def drag_accept(e):
-    # get draggable (source) control by its ID
-    src = page.get_control(e.src_id)
-    valor_inicial = e.control.content.content.controls
-    e.control.content.content.controls = src.content.controls
-    src.content.controls = valor_inicial
-    page.update()
+# appbar padronizada
+appbar = ft.AppBar(
+        leading=ft.Icon(ft.icons.TASK_ALT),
+        leading_width=100,
+        center_title=False,
+        toolbar_height=55,
+        bgcolor=ft.Colors.PURPLE_300,
+        title=ft.Text('Trolla'),
+    )
+
+# destinos do navigation rail
+destinos_fixos = [
+        ft.NavigationRailDestination(
+            icon=ft.Icons.LIST,
+            selected_icon=ft.Icons.LIST_OUTLINED,
+            label="INICIO"
+        ),
+        ft.NavigationRailDestination(
+            icon=ft.Icons.PERSON,
+            selected_icon=ft.Icons.PERSON_OUTLINED,
+            label="FILTROS"
+        ),
+    ]
+def destinos_dinamicos():
+    return [
+        ft.NavigationRailDestination(
+            icon=ft.Icons.TASK_ALT,
+            selected_icon=ft.Icons.TASK_ALT_OUTLINED,
+            label=nome_do_kanban
+        )
+        for nome_do_kanban in [kanban.get('nome') for kanban in bd.bd]
+    ]
 
 
-#########################################utilidades#########################################################
+# navigation rail que fica na esquerda da tela e contem os icones das rotas
+navigation_rail = ft.NavigationRail(
+    selected_index=0,
+    label_type=ft.NavigationRailLabelType.ALL,
+    group_alignment=-1.0,
+    min_width=100,
+    min_extended_width=400,
+    bgcolor=ft.Colors.PURPLE_500,
+    leading = ft.FloatingActionButton(
+        icon=ft.Icons.ADD_TASK,
+        text="Add",
+        on_click = lambda e: page.open(criacao.alerta_dialog)
+    ),
+    destinations = destinos_fixos + destinos_dinamicos(),
+    on_change = lambda e: page.go(str(e.control.selected_index))
+)
 
 
-def expandir_coluna(e):
-    if len(e.control.content.controls) < 7:
-        e.control.height+=195
-        e.control.content.controls.extend(
-            [
-                ft.Divider(
-                    height=5,
-                    color="white"
-                ),                      
-                ft.DragTarget(
-                    on_accept=drag_accept,
-                    content=ft.Draggable(
-                        ft.Column( 
-                            controls = [
-                                ft.TextField(
-                                    bgcolor = ft.Colors.WHITE,
-                                    label = "[Atividadde]:",
-                                    label_style = ft.TextStyle(
-                                        color = ft.Colors.BLACK,
-                                        size = 15,
-                                        italic = True
-                                    ),
-                                    text_style = ft.TextStyle(
-                                        color = ft.Colors.BLACK,
-                                        size = 12,
-                                    )
-                                ),
-                                ft.TextField(
-                                    bgcolor = ft.Colors.WHITE,
-                                    label = "[Responsavel]:",
-                                    icon = ft.Icon(
-                                        name = ft.Icons.ARROW_CIRCLE_RIGHT,
-                                        color = ft.Colors.WHITE,
-                                        size = 30,
-                                        tooltip = "mover"
-                                    ),
-                                    label_style = ft.TextStyle(
-                                        color = ft.Colors.BLACK,
-                                        size = 12,
-                                        italic=True
-                                    ),
-                                    text_style = ft.TextStyle(
-                                        color = ft.Colors.BLACK,
-                                        size=12
-                                        )
-                                ),
-                                ft.TextField(
-                                    label = "[Descrição]:",
-                                    label_style = ft.TextStyle(
-                                        color = ft.Colors.BLACK,
-                                        size = 15,
-                                        italic=True
-                                    ),
-                                    multiline = True,
-                                    bgcolor = ft.Colors.WHITE,
-                                    text_style = ft.TextStyle(
-                                        color=ft.Colors.BLACK,
-                                        size=12
-                                    )
-                                )
-                            ]
-                        )
-                    )
-                )   
+# view atual
+view_atual = ft.Row(
+    controls=[
+        navigation_rail,
+        ft.Stack(
+            controls=[
+                ft.Container(
+                    image_src='https://4kwallpapers.com/images/wallpapers/windows-11-stock-purple-abstract-black-background-amoled-2880x1800-9056.jpg',
+                    image_fit=ft.ImageFit.COVER,
+                    expand=True,
+                    width=1980,
+                    height=1080
+                ),
+                tela_atual,
             ]
         )
-    page.update()
+    ],
+    expand=True
+)
 
-
-#########################################################fim de utilidades#####################################
