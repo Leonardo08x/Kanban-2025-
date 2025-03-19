@@ -1,7 +1,22 @@
 import flet as ft
 import controle as con
 
-
+#########################################controle de checkbox
+def desativar_responsavel(e):
+  if check_atividade.value == True:
+    check_responsavel.disabled = True
+  else:
+    check_responsavel.disabled = False
+  con.page.update()
+def desativar_atividade(e):
+  if check_responsavel.value == True:
+    check_atividade.disabled = True
+  else:
+    check_atividade.disabled = False
+  con.page.update()
+check_responsavel = ft.Checkbox(label="PESQUISAR POR USUARIO", on_change=desativar_atividade,fill_color=ft.Colors.DEEP_PURPLE,shape= ft.CircleBorder(),tooltip="ao selecionar um filtro, o outro ficara desativado, ambos desativados, filtra por nome do kanban")
+check_atividade = ft.Checkbox(label="PESQUISAR POR ATIVIDADE", on_change=desativar_responsavel,fill_color=ft.Colors.DEEP_PURPLE,shape= ft.CircleBorder(),tooltip="ao selecionar um filtro, o outro ficara desativado, ambos desativados, filtra por nome do kanban")
+###################################################################################################
 def view():
     return ft.View(
         "tela0",
@@ -38,9 +53,11 @@ def view():
                 )
             ),
             # primeira linha
-            ft.Row(
-                [
-                    con.rail,
+            ft.Row(expand=True,
+                
+               controls= [   
+
+                    con.rail ,
                     ft.VerticalDivider(width=1),
                     ft.Column(
                         [
@@ -64,16 +81,13 @@ def view():
                                                                 label='pesquisar',
                                                                 label_style =  ft.TextStyle(font_family="Kanit"),
                                                                 icon='search',
-                                                                on_change=lambda e: print("EU QUERO GOZARRRR"),
+                                                                on_change=pesquisar_kanban,
                                                                 bgcolor= ft.Colors.PURPLE_500
-                                                            ),ft.Checkbox(label="PESQUISAR POR ATIVIDADE", on_change=lambda e: print("VOU DEIXAR O OCO"),fill_color=ft.Colors.DEEP_PURPLE,shape= ft.CircleBorder())
-                                                           , ft.Checkbox(label="PESQUISAR POR USUARIO", on_change=lambda e: print("VOU DEIXAR O OCO"),fill_color=ft.Colors.DEEP_PURPLE,shape= ft.CircleBorder())
+                                                            ),check_atividade
+                                                           , check_responsavel
                                                         ]
                                                     ), # Row
-                                                    ft.Row(
-                                                        scroll=ft.ScrollMode.ALWAYS,
-                                                        controls = con.recuperar_kanbam()
-                                                    ) # Row
+                                                   con.linha_com_membros
                                                 ]
                                             ),
                                             # botão adicionar, incluir em uma linha
@@ -91,8 +105,22 @@ def view():
                         alignment=ft.MainAxisAlignment.START,
                         expand=True
                     ) # Column
-                ],
-                expand=True
-            ) # Row
+             ],
+             
+            tight=True) # Row
         ]
     )
+def pesquisar_kanban(e):
+    print(con.telas['0'].controls[1].controls[2].controls[0].controls[1].controls[0].controls[1].controls)
+    if e.control.value != "":
+        resultados_kanbans = []
+        if check_responsavel.value == False and check_atividade.value == False:
+         for i in list(con.dicionario_de_cartoes.keys()):
+          if e.control.value == i.split(',')[1]:
+           print("achei")
+        elif check_responsavel.value == True:
+           for i in list(con.dicionario_de_cartoes.keys()):
+            for j in con.dicionario_de_cartoes[i][1]:
+               if e.control.value in j:
+                print("achei")
+         
