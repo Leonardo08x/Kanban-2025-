@@ -1,7 +1,8 @@
 import flet as ft
 import controle as con
-from bd import bd
 
+
+# TODO alterar visualização, deixar a linha de cartões formando colunas, semelhante a ResponsiveRow
 
 def conteudo() -> list:
     return [
@@ -11,7 +12,7 @@ def conteudo() -> list:
                 ft.Row(
                     controls=[
                         criar_cartao_do_kanban(kanban.get('nome'))
-                        for kanban in bd
+                        for kanban in con.bd
                     ]
                 )
             ]
@@ -19,7 +20,8 @@ def conteudo() -> list:
     ]
 
 
-def criar_cartao_do_kanban(nome_do_kanban):
+# gera um cartão padronizado com todo o nome do kanban e os botões para acessá-lo, editá-lo e excluí-lo
+def criar_cartao_do_kanban(nome_do_kanban : str) -> ft.Container:
     return ft.Container(
         width=250,
         height=150,
@@ -70,6 +72,7 @@ def criar_cartao_do_kanban(nome_do_kanban):
     )
 
 
+# função do botão apagar o kanban
 def apagar_kanban(e):
     # linha1 = e.control.parent -> acessa a ft.Row que contem o botão
     # coluna = linha.parent -> acessa a ft.Column que contem a ft.Row
@@ -83,12 +86,13 @@ def apagar_kanban(e):
     indice = conteudo_da_linha.index(container)
     
     # remove o kanban do banco de dados
-    bd.pop(indice)
+    con.bd.pop(indice)
 
     # atualiza as rotas e atualiza a pagina
     con.carregar_rotas()
 
 
+# função do botão de acesso ao kanban
 def acessar_kanban(e):
     # linha1 = e.control.parent -> acessa a ft.Row que contem o botão
     # coluna = e.control.parent.parent -> acessa a ft.Column que contem o botão
@@ -108,7 +112,9 @@ def acessar_kanban(e):
     con.page.update()
 
 
+# função do botão de editar
 def editar_kanban(e):
+    # TODO: direcinar o usuário para a tela de edição, a qual será semelhante a tela de acesso
     pass
 
 

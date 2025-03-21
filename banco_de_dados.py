@@ -1,10 +1,12 @@
 bd = [
     {
         'nome': 'kanban 1',
+        'ID': '0',
         'colunas': [
             {
                 'nome': 'coluna 1',
                 'cor': 'vermelha',
+                'ID': '0',
                 'tarefas': [
                     ('responsavel', 'tarefa 1'),
                     ('responsavel', 'tarefa 2'),
@@ -13,6 +15,7 @@ bd = [
             {
                 'nome': 'coluna 2',
                 'cor': 'laranja',
+                'ID': '1',
                 'tarefas': [
                         ('junior', 'catar manga'),
                         ('alessandro', 'ajudar o junior'),
@@ -22,10 +25,12 @@ bd = [
     },
     {
         'nome': 'kanban 2',
+        'ID': '1',
         'colunas': [
             {
                 'nome': 'coluna 1',
                 'cor': 'vermelha',
+                'ID': '0',
                 'tarefas': [
                     ('responsavel', 'tarefa 1'),
                 ],
@@ -33,6 +38,7 @@ bd = [
             {
                 'nome': 'coluna 2',
                 'cor': 'laranja',
+                'ID': '1',
                 'tarefas': [
                     ('leonardo', 'designer'),
                     ('gian', 'banco de dados'),
@@ -43,5 +49,5 @@ bd = [
     },
 ]
 
-
-# bd -> list[dict[str, list[dict[str, list[tuple[str, str]]]]
+def carregar_bd() -> list[dict[str, str | list[dict[str, str |list[tuple[str, str]]]]]]:
+    return bd

@@ -1,18 +1,19 @@
 import flet as ft
 import controle as con
 from lista_de_cores import cores
-from bd import bd
 
 
+# TODO adiconar botões de criar tarefas.
+# TODO adicionar botões para mover tarefas entre colunas.
 def visualizar_kanban(index : int) -> list:
     return [
         ft.Column(
             controls=[
-                ft.Text(f'Tela visualizar kanban: {bd[index]["nome"]}'),
+                ft.Text(f'Tela visualizar kanban: {con.bd[index]["nome"]}'),
                 ft.Row(
                     controls=[
                         carregar_cartao_da_coluna(coluna)
-                        for coluna in bd[index].get('colunas')
+                        for coluna in con.bd[index].get('colunas')
                     ]
                 )
             ],
