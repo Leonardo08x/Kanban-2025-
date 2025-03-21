@@ -1,5 +1,6 @@
 import flet as ft
 import controle as con
+import banco_de_dados
 
 
 # TODO alterar visualização, deixar a linha de cartões formando colunas, semelhante a ResponsiveRow
@@ -86,8 +87,9 @@ def apagar_kanban(e):
     indice = conteudo_da_linha.index(container)
     
     # remove o kanban do banco de dados
+    banco_de_dados.excluir(indice, con.bd)
     con.bd.pop(indice)
-
+    
     # atualiza as rotas e atualiza a pagina
     con.carregar_rotas()
 

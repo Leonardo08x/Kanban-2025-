@@ -13,7 +13,8 @@ navigation_rail = None
 def init(p):
     global page, bd
     page = p
-    bd = banco_de_dados.carregar_bd()
+    bd = banco_de_dados.carregar()
+
     carregar_rotas()
 
 
@@ -42,6 +43,8 @@ def carregar_rotas():
     }
     for i, kanban in enumerate(bd):
         rotas[str(i+2)] = visualizar.visualizar_kanban(i)
+
+    banco_de_dados.salvar(bd)
 
     # atualiza o navigation rail com os campos fixos e os kanbans
     navigation_rail.destinations = destinos_navigation_rail()
