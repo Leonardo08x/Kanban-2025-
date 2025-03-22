@@ -50,10 +50,6 @@ def criar_cartao_do_kanban(nome_do_kanban : str) -> ft.Container:
                             text="Excluir",
                             on_click=apagar_kanban,
                         ),
-                        ft.ElevatedButton(
-                            text="Editar",
-                            on_click=editar_kanban
-                        ),
                         # botão de acesso ao kanban
                         ft.TextButton(
                             "GO",
