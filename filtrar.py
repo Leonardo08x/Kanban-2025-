@@ -178,7 +178,8 @@ def filtro_nome_coluna() -> list[ft.Checkbox]:
     return [
         ft.Checkbox(
             label=coluna,
-            on_change=filtrar_coluna
+            on_change=filtrar_coluna,
+        fill_color=ft.Colors.PURPLE_200,
         )
         for coluna in sorted(list(nomes_colunas))
     ]
