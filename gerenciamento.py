@@ -116,7 +116,7 @@ def acessar_kanban(e):
 
 # função do botão de editar
 def editar_kanban(e):
-    # TODO: direcinar o usuário para a tela de edição, a qual será semelhante a tela de acesso
+    # TODO implementar funcao do botao para editar o kanban selecionado
     pass
 
 

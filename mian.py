@@ -22,7 +22,4 @@ ft.app(target=main)
 
 
 
-# TODO - nome colunas na tela de criacao
 # TODO - pesquisa para caixa de selacao
-# TODO - botao editar na vizualizacao
-# TODO - botao apagar na vizualizacao

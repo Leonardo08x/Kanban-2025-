@@ -9,17 +9,19 @@ def criador_ID(caminho):
         Cria um ID único para cada kaban ou coluna
     '''
     #Recupero todos os IDs existente na pasta analisada
-    lista = [int(re.match(r"\d+", item).group()) for item in os.listdir(caminho)]
+    ids = [int(re.match(r"\d+", item).group()) for item in os.listdir(caminho)]
     
     #Verifico se entre o menor ID(0) e o maior ID existe lacuna
     #Se existir, os novos IDs cobrirão essas lacunas
     #Se não houver, ele pega o maior ID e adiciona +1
-    if len(lista) == 0:
-        lista = [-1]
-    for Id in range(max(lista)):
-        if Id not in lista:
-            return str(Id)
-    return str(max(lista)+1)
+    if not ids:
+        return '0'
+    else:    
+        for i in range(max(ids)+1):
+            if i not in ids:
+                return str(i)
+        else:
+            return str(max(ids)+1)
 
 
 
@@ -109,7 +111,8 @@ def carregar() -> list[dict[str, str | list[dict[str, str | list[tuple[str]]]]]]
     '''
         Função que retorna um banco de dados volátil baseado no banco de dados permanente
     '''
-    
+    if not os.path.exists("KANBANS"):
+        return []
     #Crio o banco de dados vazio
     database = []
     
@@ -136,7 +139,7 @@ def carregar() -> list[dict[str, str | list[dict[str, str | list[tuple[str]]]]]]
             
             #Abro os arquivos para recuperar suas linhas
             with open(f"KANBANS/{kanban}/{arquivo}", "r", encoding= "utf-8") as file:
-                linhas = [item[:-1] if "\n" in item else item for item in file.readlines()]
+                linhas = [item.strip() for item in file.readlines()]
             
             #defino no dicionario da coluna a chave cor com o valor da primeira linha
             dicio["cor"] = linhas[0]
@@ -146,8 +149,9 @@ def carregar() -> list[dict[str, str | list[dict[str, str | list[tuple[str]]]]]]
             
             #itero as outras linhas do arquivo que são referentes a atividades e seus responsáveis
             #e colocos dentro da lista de tarefas
-            for tarefa in linhas[1:]:
-                dicio.get("tarefas").append(tuple(tarefa.split(";")))
+            if len(linhas) > 1:
+                for tarefa in linhas[1:]:
+                    dicio.get("tarefas").append(tuple(tarefa.split(";")))
             
             #Adiciona o dicionario referente a coluna dentro da lista de coluna
             coluna.append(dicio)
@@ -182,9 +186,7 @@ def excluir(index : int, banco_dados : list[dict[str, str | list[dict[str, str |
                 #E exclui a pasta, além de excluir do banco de dados
                 for arquivo in os.listdir(f"KANBANS/{pasta}"):
                     os.remove(f"KANBANS/{pasta}/{arquivo}")
-                os.removedirs(f"KANBANS/{pasta}")
-                banco_dados.pop(index)
-                     
+                os.removedirs(f"KANBANS/{pasta}")                     
 
 
 
@@ -192,40 +194,39 @@ def excluir(index : int, banco_dados : list[dict[str, str | list[dict[str, str |
 def editar(index : int, banco_dados : list[dict], novo_kanban : dict[str, str | list[dict]]):
     '''
         Edita o kanban selecionado pelo processo:
-        
+
         Verifica o aquivo correspondente e exclui o antigo.
         Depois, adiciona o novo kanban tanto ao banco de dados volátil quanto nos arquivos
     '''
     
-    #exclui o antigo kanban
-    excluir(index, banco_dados)
-    
     #adiciona o novo kanban ao banco de dados volátil
-    banco_dados.append(novo_kanban)
+    banco_dados[index] = novo_kanban
     
+    #exclui o antigo kanban
+    for arquivo in os.listdir(f"KANBANS/{banco_dados[index].get('ID')}--{banco_dados[index].get('nome')}"):
+        os.remove(f"KANBANS/{banco_dados[index].get('ID')}--{banco_dados[index].get('nome')}/{arquivo}")
     
     #A partir daqui é igual ao final da função salvar
-    Id = criador_ID("KANBANS")
-    
-    if not os.path.exists(f"./KANBANS/{Id}--{novo_kanban.get('nome')}"):
-            os.mkdir(f"./KANBANS/{Id}--{novo_kanban.get('nome')}")
+    Id = novo_kanban.get('ID')
         
-            #itero a lista de colunas
-            for coluna in novo_kanban["colunas"]:
-                ddi = criador_ID(f"./KANBANS/{Id}--{novo_kanban.get('nome')}")
-                '''
-                    Crio a arquivo txt referente ao nome de cada coluna e seu respectivo indice 
-                    dentro dessa lista, evitando problemas com nomes repetidos
-                '''
-                with open(f"./KANBANS/{Id}--{novo_kanban.get('nome')}/{ddi}--{coluna.get('nome')}.txt", 
-                        "w", encoding= "utf-8") as file:
-                    
-                    #escrevo na primeira linha a cor da coluna
-                    file.write(coluna.get("cor") + "\n")
-                    
-                    #As demais linhas serão no formato: {pessoa};{tarefa}\n
-                    for tarefa in coluna.get("tarefas")[:-1]:
-                        file.write(";".join(tarefa) + "\n")
-                    file.write(";".join(coluna.get("tarefas")[-1]))
+    #itero a lista de colunas
+    for coluna in novo_kanban["colunas"]:
+        ddi = criador_ID(f"./KANBANS/{Id}--{novo_kanban.get('nome')}")
+        '''
+            Crio a arquivo txt referente ao nome de cada coluna e seu respectivo indice 
+            dentro dessa lista, evitando problemas com nomes repetidos
+        '''
+        with open(f"./KANBANS/{Id}--{novo_kanban.get('nome')}/{ddi}--{coluna.get('nome')}.txt", "w", encoding= "utf-8") as file:
+            
+            #escrevo na primeira linha a cor da coluna
+            file.write(coluna.get("cor") + "\n")
+            
+            #As demais linhas serão no formato: {pessoa};{tarefa}\n
+            file.write(
+                '\n'.join(
+                    ";".join(tarefas)
+                    for tarefas in coluna.get("tarefas")
+                )
+            )
 
 
