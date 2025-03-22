@@ -1,16 +1,17 @@
+import re
 import flet as ft
 import controle as con
+import banco_de_dados as bd
 
 
 import gerenciamento
 # variaveis globais
-filtro_kanban = []
-filtro_coluna = []
-filtro_responsavel = []
+filtro_kanban = None
+filtro_coluna = None
+filtro_responsavel = None
 
 
 def conteudo() -> list:
-    global botoes
     return [
         ft.Column(
             controls=[
@@ -18,8 +19,6 @@ def conteudo() -> list:
                 ft.Row(controls=caixa_de_filtros()),
                 ft.Row(
                     controls=[
-                        # cria um cartão com o nome do kanban
-                        # TODO retirar os botões de editar e apagar, manter apenas o botão de acesso
                         gerenciamento.criar_cartao_do_kanban(kanban.get('nome'))
                         for kanban in carregar_kanbans()
                     ]
@@ -30,53 +29,71 @@ def conteudo() -> list:
 
 
 ################################## funções auxiliares do conteudo ##################################
-# conteudo que contem as caixas de filtros, aparece na tela de pesquisa
-def caixa_de_filtros() -> list:
+def caixa_de_filtros() -> list[ft.Column]:
     return [
         ft.Column(
             controls=[
                 ft.Text('Filtro nome kanban'),
                 ft.ElevatedButton(
-                    text='Limpar filtros',
-                    on_click=limpar_filtros_kanban
+                    text='Selecionar todos',
+                    on_click=all_filtros_kanban
                 ),
-            ] + filtro_nome_kanban(),
+                ft.Divider(),
+                ft.GridView(
+                    runs_count=3,
+                    width=300,
+                    height=150,
+                    controls=filtro_nome_kanban()
+                )
+            ],
         ),
         ft.Column(
             controls=[
                 ft.Text('Filtro nome coluna'),
                 ft.ElevatedButton(
-                    text='Limpar filtros',
-                    on_click=limpar_filtros_coluna
+                    text='Selecionar todos',
+                    on_click=all_filtros_coluna
                 ),
-            ] + filtro_nome_coluna(),
+                ft.Divider(),
+                ft.GridView(
+                    runs_count=6,
+                    width=600,
+                    height=150,
+                    controls=filtro_nome_coluna()
+                )
+            ],
         ),
         ft.Column(
             controls=[
                 ft.Text('Filtro responsavel'),
                 ft.TextField(
                     on_change=filtrar_responsavel
-                )
+                ),
+                botao_aplicar_filtros()
             ]
-        )
+        ),
     ]
 
-def carregar_kanbans() -> list:
-    return [
-        kanban
-        for kanban in con.bd
-        if kanban in filtro_kanban and\
-            kanban in filtro_coluna and\
-            kanban in filtro_responsavel
-    ]
+
+def carregar_kanbans() -> list[dict[str, str | list[dict[str, str | list[tuple[str, str]]]]]]:
+    global filtro_kanban, filtro_coluna, filtro_responsavel
+    # veificando quais filtros foram marcados
+    filtros = [filtro for filtro in [filtro_kanban, filtro_coluna, filtro_responsavel] if filtro is not None] 
+    # filtrando os kanbans
+    kanbans_filtrados = list(filter(lambda kanban: any(filtro(kanban) for filtro in filtros) if filtros else True, con.bd))
+    # limpando os filtros
+    filtro_kanban = None
+    filtro_coluna = None
+    filtro_responsavel = None
+    # retornando os kanbans filtrados
+    return kanbans_filtrados
     
 ############################################ Checkboxs #############################################
 # retorna a lista de todos os nomes dos kanbans
-def filtro_nome_kanban() -> list:
+def filtro_nome_kanban() -> list[ft.Checkbox]:
     return [
         ft.Checkbox(
             label=kanban.get('nome'),
-            value=False,
             on_change=filtrar_kanban
         )
         for kanban in con.bd
@@ -84,7 +101,7 @@ def filtro_nome_kanban() -> list:
 
 
 # retorna a lista de todos os nomes das colunas
-def filtro_nome_coluna() -> list:
+def filtro_nome_coluna() -> list[ft.Checkbox]:
     nomes_colunas = {
         coluna.get('nome')
         for kanban in con.bd
@@ -93,107 +110,120 @@ def filtro_nome_coluna() -> list:
     return [
         ft.Checkbox(
             label=coluna,
-            value=False,
             on_change=filtrar_coluna
         )
         for coluna in sorted(list(nomes_colunas))
     ]
 
+############################## botao filtros ################################
+def botao_aplicar_filtros():
+    return ft.ElevatedButton(
+        text='Aplicar Filtros',
+        on_click=lambda e: con.atualizar_pagina(conteudo()),
+    )
 
 ######################################## setor nome kanban #########################################
 
-def filtrar_kanban(e) -> list[dict[str, str | list[dict[str, str |list[tuple[str, str]]]]]]:
+def filtrar_kanban(e):
     global filtro_kanban
-    # botão esta dentro de uma coluna
-    column = e.control.parent
-    # os checkboxes estao dentro da coluna a partir da posicao 2
-    checkboxes = column.controls[2:]
+    # caixa = e.control -> acessa a caixa de filtros
+    # gridview = e.control.parent -> acessa a gridview que contem a caixa de filtros
+    grideview = e.control.parent
+    
+    # os checkboxes estao dentro da gridview
+    checkboxes = grideview.controls
     # checkbox marcados
-    filtro = [nome.label for nome in checkboxes if nome.value]
-    if filtro:
-        # kanbans que atendem o filtro
-        filtro_kanban = [
-            kanban
-            for kanban in con.bd
-            if kanban.get('nome') in filtro
-        ]
-        # atualiza a pagina
-        con.page.update()
-    # caso nenhum checkbox esteja marcado limpa os filtros
+    nomes_marcados = [nome.label for nome in checkboxes if nome.value]
+
+    # criando o filtro
+    if nomes_marcados:
+        filtro_kanban = lambda kanban: kanban.get('nome') in nomes_marcados
     else:
-        limpar_filtros_kanban(e)
+        filtro_kanban = None
 
 
-def limpar_filtros_kanban(e):
+def all_filtros_kanban(e):
     global filtro_kanban
-    # botão esta dentro de uma coluna
-    column = e.control.parent
-    # os checkboxes estao dentro da coluna a partir da posicao 2
-    checkboxes = column.controls[2:]
+    # caixa = e.control -> acessa a caixa de filtros
+    # column = e.control.parent -> acessa a coluna que contem a caixa de filtros
+    # gridview = e.control.parent.controls[3] -> acessa a gridview que contem a caixa de filtros
+    gridview = e.control.parent.controls[3]
+    # os checkboxes estao dentro da gridview
+    checkboxes = gridview.controls
     # desmarca os checkboxes
     for checkbox in checkboxes:
-        checkbox.value = False
+        checkbox.value = True
     # limpa a variavel filtro
-    filtro_kanban = []
-    # atualiza a coluna
-    column.update()
+    filtro_kanban = None
+    
+    con.page.update()
+
+
 
 
 ######################################## setor nome coluna #########################################
 
-def filtrar_coluna(e) -> list[dict[str, str | list[dict[str, str | list[tuple[str, str]]]]]]:
+def filtrar_coluna(e):
     global filtro_coluna
-    # botão esta dentro de uma coluna
-    column = e.control.parent
-    # os checkboxes estao dentro da coluna a partir da posicao 2
-    checkboxes = column.controls[2:]
+    # caixa = e.control -> acessa a caixa de filtros
+    # gridview = e.control.parent -> acessa a gridview que contem a caixa de filtros
+    gridview = e.control.parent
+    # os checkboxes estao dentro da gridview
+    checkboxes = gridview.controls
     # checkbox marcados
     filtro = [nome.label for nome in checkboxes if nome.value]
+
+    # criando o filtro
     if filtro:
-        # kanbans que atendem o filtro
-        kanbans = []
-        for kanban in con.bd:
-            for coluna in kanban.get('colunas'):
-                if coluna.get('nome') in filtro and not kanban in kanbans:
-                    kanbans.append(kanban)
-        filtro_coluna = kanbans
-        # atualiza a pagina
-        con.page.update()
-    # caso nenhum checkbox esteja marcado limpa os filtros
+        filtro_coluna = lambda kanban: any(coluna.get('nome') in filtro for coluna in kanban.get('colunas'))
     else:
-        limpar_filtros_coluna(e)
+        filtro_coluna = None
 
 
-def limpar_filtros_coluna(e):
+def all_filtros_coluna(e):
     global filtro_coluna
-    # botão esta dentro de uma coluna
-    column = e.control.parent
-    # os checkboxes estao dentro da coluna a partir da posicao 2
-    checkboxes = column.controls[2:]
+    # caixa = e.control -> acessa a caixa de filtros
+    # column = e.control.parent -> acessa a coluna que contem a caixa de filtros
+    # gridview = e.control.parent.controls[3] -> acessa a gridview que contem a caixa de filtros
+    gridview = e.control.parent.controls[3]
+    # os checkboxes estao dentro da gridview
+    checkboxes = gridview.controls
     # desmarca os checkboxes
     for checkbox in checkboxes:
-        checkbox.value = False
+        checkbox.value = True
     # limpa a variavel filtro
-    filtro_coluna = []
-    # atualiza a coluna
-    column.update()
+    filtro_coluna = None
+    
+    con.page.update()
 
 
-#################################### setor nome rersponsavel #######################################
-
-def filtrar_responsavel(e) -> list[dict[str, str | list[dict[str, str |list[tuple[str, str]]]]]]:
+#################################### setor nome responsavel #######################################
+def remover_acentos(texto : str) -> str:
+    texto_a = re.sub(r'[áàâã]', 'a', texto)
+    texto_e = re.sub(r'[éèê]', 'e', texto_a)
+    texto_i = re.sub(r'[íìî]', 'i', texto_e)
+    texto_o = re.sub(r'[óòôõ]', 'o', texto_i)
+    texto_u = re.sub(r'[úùû]', 'u', texto_o)
+    texto_c = re.sub(r'[ç]', 'c', texto_u)
+    return texto_c
+    
+    
+def filtrar_responsavel(e):
     global filtro_responsavel
     # captura o texto no textfield
     responsavel = e.control.value
 
-    # kanbans que atendem o filtro
-    kanbans = []
-    for kanban in con.bd:
-        for coluna in kanban.get('colunas'):
-            for tarefa in coluna.get('tarefas'):
-                if tarefa[0].startswith(responsavel) and not kanban in kanbans:
-                    kanbans.append(kanban)
-    filtro_responsavel = kanbans
-    # atualiza a pagina
-    con.page.update()
+    if not responsavel:
+        filtro_responsavel = None
+
+    else:
+        # tratando valores
+        responsavel = remover_acentos(responsavel).lower()
+
+        # criando o filtro
+        filtro_responsavel = lambda kanban: any(
+            remover_acentos(tarefas[0]).lower().startswith(responsavel)
+            for coluna in kanban.get('colunas')
+            for tarefas in coluna.get('tarefas')
+        )
 

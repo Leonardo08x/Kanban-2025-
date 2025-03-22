@@ -1,3 +1,0 @@
-verde
-pedro;apoio moral
-alessandro;gtk

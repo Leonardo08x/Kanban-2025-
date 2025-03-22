@@ -1,7 +1,7 @@
 import flet as ft
 import controle as con
-from lista_de_cores import cores
 import banco_de_dados as bd
+from lista_de_cores import cores
 
 # variaveis globais
 indice = 0
@@ -451,13 +451,14 @@ def salvar_kanban(e):
 ############################################# criar e fechar criador de tarefas ############################################################
 def fechar_criador_de_tarefas(e):
     # elevated_button = e.control -> acessa o elevated_button
-    # column1 = e.control.parent -> acessa a ft.Column que contem o elevated_button
-    # container = e.control.parent.parent -> acessa a ft.Container que contem a ft.Column
-    # row_tarefas = e.control.parent.parent.parent -> acessa a ft.Row que contem o ft.Container das tarefas
-    linha_tarefas = e.control.parent.parent.parent
+    # row_botoes = e.control.parent -> acessa a ft.Row que contem o elevated_button
+    # column = e.control.parent.parent -> acessa a ft.Column que contem os botoes e os textfields de criacao
+    # container = e.control.parent.parent.parent -> acessa o ft.Container de criacao
+    # column_tarefas_0 = e.control.parent.parent.parent.parent -> acessa a primeira ft.Column que contem as tarefas
+    column_tarefas_0 = e.control.parent.parent.parent.parent
     
-    # apagando o container criador de tarefas
-    linha_tarefas.contents.pop(0)
+    # apagando o container criador de tarefas que aparece na 2 posicao/indice 1
+    column_tarefas_0.controls.pop(1)
 
     con.page.update()
 

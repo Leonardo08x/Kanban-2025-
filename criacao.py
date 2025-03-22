@@ -127,6 +127,10 @@ def fechar_alerta_dialog(e):
     # limpa a caixa de texto do nome do kanban
     column.controls[0].value = ''
 
+    # apaga as caixas de texto extras
+    if len(gridview1_valores) > 4:
+        del gridview1_valores[4:]
+        
     # limpa as caixas de texto dos nomes das colunas
     for textfield in gridview1_valores[::2]:
         textfield.value = ''

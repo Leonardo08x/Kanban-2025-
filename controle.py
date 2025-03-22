@@ -41,7 +41,7 @@ def carregar_rotas():
         '0': gerenciamento.conteudo(),
         '1': filtrar.conteudo(),
     }
-    for i, kanban in enumerate(bd):
+    for i in range(len(bd)):
         rotas[str(i+2)] = visualizar.visualizar_kanban(i)
 
     banco_de_dados.salvar(bd)
@@ -51,6 +51,11 @@ def carregar_rotas():
     # atualiza a pagina
     controle_de_rota(page)
 
+
+def atualizar_pagina(conteudo : list):
+    global rotas
+    rotas[page.route] = conteudo
+    controle_de_rota(page)
 
 # destinos do navigation rail
 def destinos_navigation_rail():
