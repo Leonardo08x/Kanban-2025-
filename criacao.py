@@ -40,16 +40,17 @@ def cores_checkbox() -> list[ft.Checkbox]:
 def mudanca_slider(e):
     global slider_colunas, alerta_dialog
     # column = alerta_dialog.content -> recebe a coluna do alerta dialogo
-    # gridview1 = alerta_dialog.content.controls[2] -> recebe o gridview da coluna
-    gridview_valores = alerta_dialog.content.controls[2].controls
+    # linha = alerta_dialog.content.controls[2] -> recebe a linha da coluna
+    linha_valores = alerta_dialog.content.controls[2].controls
     # diferenca da quantidade de colunas com o slider
-    colunas_extras = int(slider_colunas.value) - len(gridview_valores)//2
+    colunas_extras = int(slider_colunas.value) - len(linha_valores)//3
     # se mudar para mais colunas, adiciona o textfield e as cores
     if colunas_extras > 0:
-        gridview_valores.extend(
+        linha_valores.extend(
             [
                 ft.TextField(
-                    label=f'Coluna {len(gridview_valores)//2 + 1}',
+                    width=150,
+                    label=f'Coluna {len(linha_valores)//3 + 1}',
                     on_change=autorizar_criar_kanban,
                     border_radius=15,
                     border_color=ft.Colors.WHITE70,
@@ -66,14 +67,16 @@ def mudanca_slider(e):
                 # checkbox para escolher as cores
                 ft.GridView(
                     runs_count=5,
+                    width=150,
                     controls=cores_checkbox(),
                 ),
+                ft.Divider(opacity=0.5),
             ]
         )
-    # se mudar para menos colunas, remove o textfield e as cores
+    # se mudar para menos colunas, remove o textfield, as cores e o divisor
     else:
-        gridview_valores.pop() # remove as cores
-        gridview_valores.pop() # remove o textfield
+        # remove o textfield, as cores e o divisor que estao por ultimo na linha
+        del linha_valores[-3:]
 
     # verifica a validade dos dados para ativar o botao criar
     autorizar_criar_kanban(e)
@@ -95,15 +98,15 @@ def autorizar_criar_kanban(e):
     global alerta_dialog, slider_colunas, botao_criar
     # column = alerta_dialog.content -> recebe a coluna do alerta dialogo
     textfield_kanban = alerta_dialog.content.controls[0]
-    # gridview1 = alerta_dialog.content.controls[2] -> recebe o gridview da coluna
-    textfields = alerta_dialog.content.controls[2].controls[::2]
-    # gridview2 = gridview1.controls[1::2] -> recebe uma lista dos gridview das cores
-    gridview2 = alerta_dialog.content.controls[2].controls[1::2]
+    # linha = alerta_dialog.content.controls[2] -> recebe a linha da coluna
+    textfields = alerta_dialog.content.controls[2].controls[::3]
+    # gridview = linha.controls[1::3] -> recebe uma lista dos gridview das cores
+    gridviews = alerta_dialog.content.controls[2].controls[1::3]
 
     # lista com as cores escolhidas
     cores_valores = [
         checkbox.value
-        for checkboxes in gridview2
+        for checkboxes in gridviews
         for checkbox in checkboxes.controls
         if checkbox.value
     ]
@@ -131,7 +134,7 @@ def autorizar_criar_kanban(e):
 def fechar_alerta_dialog(e):
     global alerta_dialog, slider_colunas, botao_criar
     column = alerta_dialog.content # recebe a coluna do alerta dialogo
-    gridview1_valores = alerta_dialog.content.controls[2].controls # recebe a lista de valores do gridview1 da coluna
+    row_valores = alerta_dialog.content.controls[2].controls # recebe a lista de valores da row da coluna
 
     # fechar caixas de dialogo
     alerta_dialog.open = False
@@ -140,18 +143,18 @@ def fechar_alerta_dialog(e):
     column.controls[0].value = ''
 
     # apaga as caixas de texto extras
-    if len(gridview1_valores) > 4:
-        del gridview1_valores[4:]
+    if len(row_valores) > 6:
+        del row_valores[6:]
         
     # limpa as caixas de texto dos nomes das colunas
-    for textfield in gridview1_valores[::2]:
+    for textfield in row_valores[::3]:
         textfield.value = ''
 
     # desmarca o slider
     slider_colunas.value = 2
     
     # desmarca as cores
-    for gridview2 in gridview1_valores[1::2]:
+    for gridview2 in row_valores[1::3]:
         for checkbox in gridview2.controls:
             checkbox.value = False
 
@@ -189,13 +192,13 @@ def criar_kanban(e):
     # pega os nomes das colunas
     nome_colunas = [
         nome_coluna.value
-        for nome_coluna in gridview1_valores[::2]
+        for nome_coluna in gridview1_valores[::3]
     ]
     
     # pega as cores
     cores_selecionadas = [
         checkbox.data
-        for gridview2 in gridview1_valores[1::2]
+        for gridview2 in gridview1_valores[1::3]
         for checkbox in gridview2.controls 
         if checkbox.value
     ]
@@ -234,7 +237,10 @@ alerta_dialog = ft.AlertDialog(
     modal=True,
     bgcolor = ft.Colors.INVERSE_PRIMARY,
     title=ft.Text('Criar um novo kanban',text_align=ft.TextAlign.CENTER,),
-    content=ft.Column( width= 350,height=500,scroll=ft.ScrollMode.ALWAYS,
+    content=ft.Column(
+        width=350,
+        height=500,
+        scroll=ft.ScrollMode.AUTO,
         controls=[
             ft.TextField(
                 icon=ft.Icons.TASK_ALT,
@@ -247,10 +253,12 @@ alerta_dialog = ft.AlertDialog(
                 on_change=autorizar_criar_kanban
             ),
             ft.Divider(),
-            ft.GridView(
-                runs_count=2,
+            ft.Row(
+                expand=True,
+                wrap=True,
                 controls=[
                     ft.TextField(
+                        width=150,
                         on_change=autorizar_criar_kanban,
                         label='Coluna 1:',
                         border_radius=15,
@@ -258,17 +266,21 @@ alerta_dialog = ft.AlertDialog(
                         text_align=ft.TextAlign.CENTER,
                         color=ft.Colors.WHITE70,
                         label_style = ft.TextStyle(
-                        color = ft.Colors.WHITE70,
-                        decoration=ft.TextDecoration.UNDERLINE,
-                        decoration_color=ft.Colors.WHITE70,
-                        size = 15,
-                        italic=True)
+                            color = ft.Colors.WHITE70,
+                            decoration=ft.TextDecoration.UNDERLINE,
+                            decoration_color=ft.Colors.WHITE70,
+                            size = 15,
+                            italic=True
+                        )
                     ),
                     ft.GridView(
                         runs_count=5,
+                        width=150,
                         controls=cores_checkbox()
                     ),
+                    ft.Divider(opacity=0.5),
                     ft.TextField(
+                        width=150,
                         label='Coluna 2',
                         on_change=autorizar_criar_kanban,
                         border_radius = 15,
@@ -284,8 +296,10 @@ alerta_dialog = ft.AlertDialog(
                     ),
                     ft.GridView(
                         runs_count=5,
+                        width=150,
                         controls=cores_checkbox()
                     ),
+                    ft.Divider(opacity=0.5),
                 ]
             )
         ],
