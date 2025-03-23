@@ -12,30 +12,34 @@ def visualizar_kanban(index : int) -> list:
     global indice
     indice = index
     return [
-        ft.Column(scroll=ft.ScrollMode.ALWAYS,
+        ft.Column(
             controls=[
                 ft.Row(
                     controls=[
-                        ft.Text(f'📌{con.bd[index].get("nome")}',
-                                text_align=ft.TextAlign.END,
-                        style=ft.TextStyle(
-
-                                    size=32,
-                                    font_family="Kanit",
-                                    weight=ft.FontWeight.BOLD,
-                                    foreground=ft.Paint(
-                                        gradient=ft.PaintLinearGradient(
-                                            (2000, 150),
-                                            (150, 2000),
-                                            [ft.Colors.INVERSE_PRIMARY, ft.Colors.PURPLE_200]
-                                        )
-                                    ),
-                                )),
+                        ft.Text(
+                            value=f'📌{con.bd[index].get("nome")}',
+                            text_align=ft.TextAlign.END,
+                            style=ft.TextStyle(
+                                size=32,
+                                font_family="Kanit",
+                                weight=ft.FontWeight.BOLD,
+                                foreground=ft.Paint(
+                                    gradient=ft.PaintLinearGradient(
+                                        (2000, 150),
+                                        (150, 2000),
+                                        [ft.Colors.INVERSE_PRIMARY, ft.Colors.PURPLE_200]
+                                    )
+                                ),
+                            ),
+                        ),
                         botao_editar(),
                         botao_salvar(),
                     ]
                 ),
                 ft.Row(
+                    spacing=20,
+                    alignment=ft.MainAxisAlignment.START,
+                    scroll=ft.ScrollMode.AUTO,
                     controls=carregar_cartoes(con.bd[index]),
                     vertical_alignment=ft.CrossAxisAlignment.START
                 ),
@@ -58,8 +62,9 @@ def carregar_cartoes(kanban : dict[str, str | list[dict[str, str | list[tuple[st
         # a cada coluna eh adicionada uma ft.Column a lista colunas que sera retornada ao fim da funcao
         colunas.append(
             ft.Column(
-                expand=True,
+                height=900,
                 alignment=ft.MainAxisAlignment.START,
+                scroll=ft.ScrollMode.AUTO,
                 controls=cartoes
             )
         )
@@ -69,7 +74,7 @@ def carregar_cartoes(kanban : dict[str, str | list[dict[str, str | list[tuple[st
 # container do topo da coluna da tela de visualizar kanban
 def container_topo_coluna(nome_coluna : str, cor : str, id : str) -> ft.Container:
     return ft.Container(
-            width=250,
+            width=300,
             height=150,
             bgcolor=cores.get(cor),
             padding = 20,
@@ -134,7 +139,7 @@ def container_topo_coluna(nome_coluna : str, cor : str, id : str) -> ft.Containe
 # container das tarefas da tela de visualizar kanban
 def container_tarefas(responavel : str, tarefa : str, cor : str, id : str) -> ft.Container:
     return ft.Container(
-        width=250,
+        width=300,
         height=200,
         bgcolor=cores.get(cor),
         padding=10,
@@ -181,9 +186,7 @@ def container_tarefas(responavel : str, tarefa : str, cor : str, id : str) -> ft
                     disabled=True,
                 ),
                 # botões, em caso de alteracao na estrutura verificar setor acoes de botoes
-                ft.Row(
-                    controls=botoes_tarefas(id),
-                )
+                botoes_tarefas(id)
             ],
         ),
     )
@@ -192,7 +195,7 @@ def container_tarefas(responavel : str, tarefa : str, cor : str, id : str) -> ft
 # container do criador de tarefas
 def container_criador_de_tarefas() -> ft.Container:
     return ft.Container(
-        width=250,
+        width=300,
         height=180,
         bgcolor=ft.Colors.INVERSE_PRIMARY,
         padding=10,
@@ -266,70 +269,79 @@ def botoes_tarefas(id : str) -> list[ft.ElevatedButton]:
     
     # em caso de alteracao na estrutura verificar setor acoes dos botoes
     if id == '0':
-        return [
-            ft.ElevatedButton(
-                text="Excluir",
-                on_click=excluir_tarefa,
-                icon=ft.Icons.DELETE,
-                 style = ft.ButtonStyle(
-            bgcolor=ft.Colors.DEEP_PURPLE_500,
-        )
-            ),
-            ft.ElevatedButton(
-                text="Avançar",
-                on_click=avancar_tarefa,
-                icon=ft.Icons.ARROW_FORWARD,
-                style=ft.ButtonStyle(
-                    bgcolor=ft.Colors.DEEP_PURPLE_500,
-                )
-            ),
-        ]
-    elif id == str(max(ids)):
-        return [
-            ft.ElevatedButton(
-                text="Voltar",
-                on_click=voltar_tarefa,
-                icon=ft.Icons.ARROW_BACK,
-                style=ft.ButtonStyle(
-                    bgcolor=ft.Colors.DEEP_PURPLE_500,
-                )
-            ),
-            ft.ElevatedButton(
-                text="Excluir",
-                on_click=excluir_tarefa,
-                icon=ft.Icons.DELETE,
-                style=ft.ButtonStyle(
-                    bgcolor=ft.Colors.DEEP_PURPLE_500,
-                )
-            ),
-        ]
-    else:
-        return [
-            ft.ElevatedButton(
-                text="Voltar",
-                on_click=voltar_tarefa,
-                icon=ft.Icons.ARROW_BACK,
-                style=ft.ButtonStyle(
-                    bgcolor=ft.Colors.DEEP_PURPLE_500,
-                )
-            ),
-            ft.ElevatedButton(
-                text="Excluir",
-                on_click=excluir_tarefa,
-                icon=ft.Icons.DELETE,
-                style=ft.ButtonStyle(
-                    bgcolor=ft.Colors.DEEP_PURPLE_500,
-                )
-            ),
-            ft.ElevatedButton(
-                text="Avançar",
-                on_click=avancar_tarefa,
-                icon=ft.Icons.ARROW_FORWARD,
-                style=ft.ButtonStyle(
-                    bgcolor=ft.Colors.DEEP_PURPLE_500,
-                )
+        return ft.Row(
+            alignment=ft.MainAxisAlignment.END,
+            controls=[
+                ft.ElevatedButton(
+                    text="Excluir",
+                    on_click=excluir_tarefa,
+                    icon=ft.Icons.DELETE,
+                    style = ft.ButtonStyle(
+                bgcolor=ft.Colors.DEEP_PURPLE_500,
             )
-        ]
+                ),
+                ft.ElevatedButton(
+                    text="Avançar",
+                    on_click=avancar_tarefa,
+                    icon=ft.Icons.ARROW_FORWARD,
+                    style=ft.ButtonStyle(
+                        bgcolor=ft.Colors.DEEP_PURPLE_500,
+                    )
+                ),
+            ]
+        )
+    elif id == str(max(ids)):
+        return ft.Row(
+            alignment=ft.MainAxisAlignment.START,
+            controls=[
+                ft.ElevatedButton(
+                    text="Voltar",
+                    on_click=voltar_tarefa,
+                    icon=ft.Icons.ARROW_BACK,
+                    style=ft.ButtonStyle(
+                        bgcolor=ft.Colors.DEEP_PURPLE_500,
+                    )
+                ),
+                ft.ElevatedButton(
+                    text="Excluir",
+                    on_click=excluir_tarefa,
+                    icon=ft.Icons.DELETE,
+                    style=ft.ButtonStyle(
+                        bgcolor=ft.Colors.DEEP_PURPLE_500,
+                    )
+                ),
+            ]
+        )
+    else:
+        return ft.Row(
+            alignment=ft.MainAxisAlignment.CENTER,
+            controls=[
+                ft.ElevatedButton(
+                    text="Voltar",
+                    on_click=voltar_tarefa,
+                    icon=ft.Icons.ARROW_BACK,
+                    style=ft.ButtonStyle(
+                        bgcolor=ft.Colors.DEEP_PURPLE_500,
+                    )
+                ),
+                ft.ElevatedButton(
+                    text="Excluir",
+                    on_click=excluir_tarefa,
+                    icon=ft.Icons.DELETE,
+                    style=ft.ButtonStyle(
+                        bgcolor=ft.Colors.DEEP_PURPLE_500,
+                    )
+                ),
+                ft.ElevatedButton(
+                    text="Avançar",
+                    on_click=avancar_tarefa,
+                    icon=ft.Icons.ARROW_FORWARD,
+                    style=ft.ButtonStyle(
+                        bgcolor=ft.Colors.DEEP_PURPLE_500,
+                    )
+                )
+            ]
+        )
 
 
 def botao_editar():

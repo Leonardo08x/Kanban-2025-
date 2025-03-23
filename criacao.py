@@ -116,6 +116,7 @@ def autorizar_criar_kanban(e):
     
     # verifica se o nome do kanban foi preenchido e se o slider e as cores tem quantidades iguais
     if textfield_kanban.value\
+    and len(textfield_kanban.value) <= 10\
     and len(cores_valores) == int(slider_colunas.value)\
     and all(valores_coluna):
         botao_criar.disabled = False
@@ -242,6 +243,7 @@ alerta_dialog = ft.AlertDialog(
                 color=ft.Colors.WHITE70,
                 border_color = ft.Colors.WHITE70,
                 autofocus=True,
+                helper_text ='minimo de 1 caractere maximo de 10 caracteres',
                 on_change=autorizar_criar_kanban
             ),
             ft.Divider(),
@@ -290,7 +292,6 @@ alerta_dialog = ft.AlertDialog(
     ),
     actions=[
         # slider para escolher o numero de colunas
-
         ft.Column(
             controls=[
                 ft.Text("Selecione o numero de colunas:"),

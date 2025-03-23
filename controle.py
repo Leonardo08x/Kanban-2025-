@@ -67,8 +67,8 @@ def destinos_navigation_rail():
                 label="INICIO"
             ),
             ft.NavigationRailDestination(
-                icon=ft.Icons.PERSON,
-                selected_icon=ft.Icons.PERSON_OUTLINED,
+                icon=ft.Icons.SEARCH,
+                selected_icon=ft.Icons.SEARCH_OUTLINED,
                 label="FILTROS"
             ),
         ]
@@ -80,6 +80,8 @@ def destinos_navigation_rail():
             )
             for nome_do_kanban in [kanban.get('nome') for kanban in bd]
         ]
+    if len(destinos_dinamicos) >= 12:
+        destinos_dinamicos = destinos_dinamicos[:12]
     return destinos_fixos + destinos_dinamicos 
 
 
@@ -95,26 +97,25 @@ appbar = ft.AppBar(
         toolbar_height=55,
         bgcolor=ft.Colors.PURPLE_300,
         title=ft.Text(
-                        text_align=ft.TextAlign.START,
-                        spans=[
-                            ft.TextSpan(
-                                "KANBAN",
-                                ft.TextStyle(
-                                    size=32,
-                                    font_family="Kanit",
-                                    weight=ft.FontWeight.BOLD,
-                                    foreground=ft.Paint(
-                                        gradient=ft.PaintLinearGradient(
-                                            (2000, 150),
-                                            (150, 2000),
-                                            [ft.Colors.BLACK, ft.Colors.PURPLE]
-                                        )
-                                    ),
-                                ),
-                            ),
-                        ],
-                    )
-
+            text_align=ft.TextAlign.START,
+            spans=[
+                ft.TextSpan(
+                    "KANBAN",
+                    ft.TextStyle(
+                        size=32,
+                        font_family="Kanit",
+                        weight=ft.FontWeight.BOLD,
+                        foreground=ft.Paint(
+                            gradient=ft.PaintLinearGradient(
+                                (2000, 150),
+                                (150, 2000),
+                                [ft.Colors.BLACK, ft.Colors.PURPLE]
+                            )
+                        ),
+                    ),
+                ),
+            ],
+        )
     )
 
 

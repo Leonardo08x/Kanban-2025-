@@ -4,8 +4,6 @@ import controle as con
 
 def main(page: ft.Page):
     con.init(page)
-    page.window.width = 1920
-    page.window.height = 1080
     page.window.maximized = True
     page.dark_theme = ft.Theme(color_scheme_seed=ft.Colors.DEEP_PURPLE)
     page.appbar = con.appbar
@@ -22,7 +20,3 @@ def main(page: ft.Page):
 
 
 ft.app(target=main)
-
-
-
-# TODO - pesquisa para caixa de selacao

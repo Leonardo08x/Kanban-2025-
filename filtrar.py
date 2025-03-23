@@ -30,10 +30,20 @@ def conteudo() -> list:
                                     ),
                                 )),
                 ft.Row(controls=caixa_de_filtros()),
-                ft.Row(
+                ft.Column(
+                    scroll=ft.ScrollMode.AUTO,
+                    width=1700,
+                    height=900,
                     controls=[
-                        gerenciamento.criar_cartao_do_kanban(kanban.get('nome'))
-                        for kanban in carregar_kanbans()
+                        ft.Row(
+                            expand=True,
+                            spacing=20,
+                            wrap=True,
+                            controls=[
+                                gerenciamento.criar_cartao_do_kanban(kanban.get('nome'))
+                                for kanban in carregar_kanbans()
+                            ]
+                        )
                     ]
                 )
             ]
@@ -69,11 +79,15 @@ def caixa_de_filtros() -> list[ft.Column]:
                 ),
                 ft.Divider(),
                 ft.GridView(
-                    runs_count=3,
-                    width=300,
-                    height=150,
-                    controls=filtro_nome_kanban()
-                )
+                    width=400,
+                    height=200,
+                    controls=[
+                        ft.Column(
+                            controls=filtro_nome_kanban(),
+                            scroll=ft.ScrollMode.ALWAYS
+                        )
+                    ],
+                ),
             ],
         ),
         ft.Column(
@@ -101,11 +115,15 @@ def caixa_de_filtros() -> list[ft.Column]:
                 ),
                 ft.Divider(),
                 ft.GridView(
-                    runs_count=6,
-                    width=600,
-                    height=150,
-                    controls=filtro_nome_coluna()
-                )
+                    width=400,
+                    height=200,
+                    controls=[
+                        ft.Column(
+                            controls=filtro_nome_coluna(),
+                            scroll=ft.ScrollMode.ALWAYS
+                        )
+                    ],
+                ),
             ],
         ),
         ft.Column(
@@ -179,7 +197,7 @@ def filtro_nome_coluna() -> list[ft.Checkbox]:
         ft.Checkbox(
             label=coluna,
             on_change=filtrar_coluna,
-        fill_color=ft.Colors.PURPLE_200,
+            fill_color=ft.Colors.PURPLE_200,
         )
         for coluna in sorted(list(nomes_colunas))
     ]
@@ -196,15 +214,14 @@ def botao_aplicar_filtros():
     )
 
 ######################################## setor nome kanban #########################################
-
 def filtrar_kanban(e):
     global filtro_kanban
     # caixa = e.control -> acessa a caixa de filtros
-    # gridview = e.control.parent -> acessa a gridview que contem a caixa de filtros
-    grideview = e.control.parent
+    # column = e.control.parent -> acessa a coluna que contem a caixa de filtros
+    column = e.control.parent
     
-    # os checkboxes estao dentro da gridview
-    checkboxes = grideview.controls
+    # os checkboxes estao dentro da coluna
+    checkboxes = column.controls
     # checkbox marcados
     nomes_marcados = [nome.label for nome in checkboxes if nome.value]
 
@@ -217,15 +234,19 @@ def filtrar_kanban(e):
 
 def all_filtros_kanban(e):
     global filtro_kanban
-    # caixa = e.control -> acessa a caixa de filtros
-    # column = e.control.parent -> acessa a coluna que contem a caixa de filtros
-    # gridview = e.control.parent.controls[3] -> acessa a gridview que contem a caixa de filtros
-    gridview = e.control.parent.controls[3]
-    # os checkboxes estao dentro da gridview
-    checkboxes = gridview.controls
-    # desmarca os checkboxes
+    # botao = e.control -> acessa o botao
+    # column_externa = e.control.parent -> acessa a coluna que contem o botao
+    # gridview = e.control.parent.controls[3] -> acessa a gridview que contem a coluna de filtros
+    # column_caixas = e.control.parent.controls[3].controls[0] -> acessa a coluna que contem a caixa de filtros
+    column_caixas = e.control.parent.controls[3].controls[0]
+    
+    # os checkboxes estao dentro da coluna
+    checkboxes = column_caixas.controls
+
+    # marca todos os checkboxes
     for checkbox in checkboxes:
         checkbox.value = True
+
     # limpa a variavel filtro
     filtro_kanban = None
     
@@ -239,10 +260,11 @@ def all_filtros_kanban(e):
 def filtrar_coluna(e):
     global filtro_coluna
     # caixa = e.control -> acessa a caixa de filtros
-    # gridview = e.control.parent -> acessa a gridview que contem a caixa de filtros
-    gridview = e.control.parent
-    # os checkboxes estao dentro da gridview
-    checkboxes = gridview.controls
+    # column = e.control.parent -> acessa a coluna que contem a caixa de filtros
+    column = e.control.parent
+
+    # os checkboxes estao dentro da coluna
+    checkboxes = column.controls
     # checkbox marcados
     filtro = [nome.label for nome in checkboxes if nome.value]
 
@@ -255,15 +277,19 @@ def filtrar_coluna(e):
 
 def all_filtros_coluna(e):
     global filtro_coluna
-    # caixa = e.control -> acessa a caixa de filtros
-    # column = e.control.parent -> acessa a coluna que contem a caixa de filtros
-    # gridview = e.control.parent.controls[3] -> acessa a gridview que contem a caixa de filtros
-    gridview = e.control.parent.controls[3]
-    # os checkboxes estao dentro da gridview
-    checkboxes = gridview.controls
-    # desmarca os checkboxes
+    # botao = e.control -> acessa o botao
+    # column_externa = e.control.parent -> acessa a coluna que contem o botao
+    # gridview = e.control.parent.controls[3] -> acessa a gridview que contem a coluna de filtros
+    # column_caixas = e.control.parent.controls[3].controls[0] -> acessa a coluna que contem a caixa de filtros
+    column_caixas = e.control.parent.controls[3].controls[0]
+
+    # os checkboxes estao dentro da coluna
+    checkboxes = column_caixas.controls
+
+    # marca todos os checkboxes
     for checkbox in checkboxes:
         checkbox.value = True
+
     # limpa a variavel filtro
     filtro_coluna = None
     

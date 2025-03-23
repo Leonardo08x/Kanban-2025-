@@ -11,41 +11,52 @@ def conteudo() -> list:
     return [
         ft.Column(
             controls=[
-                ft.Text('✒ TELA DE GERENCIAMENTO ✒',
-                        style=ft.TextStyle(
-
-                                    size=32,
-                                    font_family="Kanit",
-                                    weight=ft.FontWeight.BOLD,
-                                    foreground=ft.Paint(
-                                        gradient=ft.PaintLinearGradient(
-                                            (2000, 150),
-                                            (150, 2000),
-                                            [ft.Colors.INVERSE_PRIMARY, ft.Colors.PURPLE_200]
-                                        )
-                                    ),
-                                ),),
-                ft.Row(
+                ft.Text(
+                    value='✒ TELA DE GERENCIAMENTO ✒',
+                    style=ft.TextStyle(
+                        size=32,
+                        font_family="Kanit",
+                        weight=ft.FontWeight.BOLD,
+                        foreground=ft.Paint(
+                            gradient=ft.PaintLinearGradient(
+                                (2000, 150),
+                                (150, 2000),
+                                [ft.Colors.INVERSE_PRIMARY, ft.Colors.PURPLE_200]
+                            )
+                        ),
+                    ),
+                ),
+                ft.Column(
+                    scroll=ft.ScrollMode.AUTO,
+                    width=1700,
+                    height=900,
                     controls=[
-                        criar_cartao_do_kanban(kanban.get('nome'))
-                        for kanban in con.bd
+                        ft.Row(
+                            expand=True,
+                            spacing=20,
+                            wrap=True,
+                            controls=[
+                                criar_cartao_do_kanban(kanban.get('nome'))
+                                for kanban in con.bd
+                            ]
+                        )
                     ]
                 )
-            ]
-        ),
+            ],
+        )
     ]
 
 
 # gera um cartão padronizado com todo o nome do kanban e os botões para acessá-lo, editá-lo e excluí-lo
 def criar_cartao_do_kanban(nome_do_kanban : str) -> ft.Container:
     return ft.Container(
+        alignment=ft.alignment.top_left,
         width=250,
         height=150,
         bgcolor=ft.Colors.PURPLE,
-        padding = 20,
+        padding=20,
         border=ft.border.all(2, ft.Colors.DEEP_PURPLE_500),
         border_radius=50,
-        expand=True,
         content=ft.Column(
             controls=[
                 # título com nome do kanban
