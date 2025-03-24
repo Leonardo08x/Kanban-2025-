@@ -13,6 +13,8 @@ def visualizar_kanban(index : int) -> list:
     indice = index
     return [
         ft.Column(
+            width=1700,
+            height=1000,
             controls=[
                 ft.Row(
                     controls=[
@@ -37,6 +39,7 @@ def visualizar_kanban(index : int) -> list:
                     ]
                 ),
                 ft.Row(
+                    expand=True,
                     spacing=20,
                     alignment=ft.MainAxisAlignment.START,
                     scroll=ft.ScrollMode.AUTO,
